@@ -16,3 +16,6 @@ export { default as GasGauge } from "./GasGauge";
 export { default as BytesStringInput } from "./BytesStringInput";
 export { default as Swap } from "./Swap";
 export { default as ThemeSwitch } from "./ThemeSwitch";
+export { default as About } from "./About";
+export { default as Purchase } from "./Purchase";
+export { default as Gallery } from "./Gallery";
