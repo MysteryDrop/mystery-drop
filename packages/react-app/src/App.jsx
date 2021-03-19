@@ -254,6 +254,16 @@ function App(props) {
               How it Works
             </Link>
           </Menu.Item>
+          <Menu.Item key="/debugcontracts">
+            <Link
+              onClick={() => {
+                setRoute("/debugcontracts");
+              }}
+              to="/debugcontracts"
+            >
+              Debug
+            </Link>
+          </Menu.Item>
         </Menu>
 
         <Switch>
@@ -273,6 +283,22 @@ function App(props) {
             /* mainnetProvider={mainnetProvider} */
             /* price={price} */
             />
+          </Route>
+          <Route path="/debugcontracts">
+              <Contract
+                name="TokenSale"
+                signer={userProvider.getSigner()}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+              />
+              <Contract
+                name="AnyERC20"
+                signer={userProvider.getSigner()}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+              />
           </Route>
           {/* <Route path="/exampleui"> */}
           {/*   <ExampleUI */}
