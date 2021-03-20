@@ -37,6 +37,9 @@
     "balance": "hardhat balance",
     "send": "hardhat send",
     "generate": "hardhat generate",
-    "account": "hardhat account"
+    "account": "hardhat account",
+    "reveal": "hardhat run scripts/reveal.js",
+    "mint": "hardhat run scripts/mintRari.js",
+    "mintAndPin": "hardhat run scripts/mintAndPinRari.js"
   }
 }

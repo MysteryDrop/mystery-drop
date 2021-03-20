@@ -47,7 +47,10 @@
     "graph-ship-local": "yarn graph-prepare && yarn graph-codegen && yarn graph-deploy-local",
     "deploy-and-graph": "yarn deploy && yarn graph-ship-local",
     "theme": "yarn workspace @scaffold-eth/react-app theme",
-    "watch-theme": "yarn workspace @scaffold-eth/react-app watch"
+    "watch-theme": "yarn workspace @scaffold-eth/react-app watch",
+    "mint": "yarn workspace @scaffold-eth/hardhat mint",
+    "mintAndPin": "yarn workspace @scaffold-eth/hardhat mintAndPin",
+    "reveal": "yarn workspace @scaffold-eth/hardhat reveal"
   },
   "workspaces": {
     "packages": [
