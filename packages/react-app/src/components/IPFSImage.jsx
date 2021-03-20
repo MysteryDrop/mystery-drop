@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 
+import defaultDark from "../assets/default-dark.svg";
+import defaultWhite from "../assets/default-white.svg";
+import { useThemeSwitcher } from "react-css-theme-switcher";
+
 export default function IPFSImage({ uri }) {
-  return <img alt="nft" src={uri} />;
+  const { currentTheme } = useThemeSwitcher();
+
+  return <img alt="nft" src={uri ? uri : currentTheme === "dark" ? defaultDark : defaultWhite} />;
 }
