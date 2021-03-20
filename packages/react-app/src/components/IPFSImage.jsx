@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import defaultUri from "../assets/default.svg";
 
-export default function IPFSImage({ hash }) {
-  const [uri, setUri] = useState(defaultUri);
-
+export default function IPFSImage({ uri }) {
   return <img alt="nft" src={uri} />;
 }

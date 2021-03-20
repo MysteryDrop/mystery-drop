@@ -50,7 +50,8 @@
     "watch-theme": "yarn workspace @scaffold-eth/react-app watch",
     "mint": "yarn workspace @scaffold-eth/hardhat mint",
     "mintAndPin": "yarn workspace @scaffold-eth/hardhat mintAndPin",
-    "reveal": "yarn workspace @scaffold-eth/hardhat reveal"
+    "reveal": "yarn workspace @scaffold-eth/hardhat reveal",
+    "resolve": "yarn workspace @scaffold-eth/hardhat resolve"
   },
   "workspaces": {
     "packages": [

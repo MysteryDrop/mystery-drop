@@ -44,14 +44,15 @@ const EXAMPLE_TOKENS = [
   },
 ];
 
-export default function Gallery() {
-  const [tokens, setTokens] = useState(EXAMPLE_TOKENS);
+export default function Gallery({tokens}) {
+  console.log({tokens})
+  if (!tokens.length) return null
 
   return (
     <div id="gallery">
       {tokens.map(token => (
-        <div key={token.name}>
-          <IPFSImage hash={token.image} />
+        <div key={token.id}>
+          <IPFSImage uri={token.renderUri} />
           <div className="image-overlay">
             <button
               onClick={() => {

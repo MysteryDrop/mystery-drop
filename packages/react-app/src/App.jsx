@@ -23,7 +23,8 @@ import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views";
 import { useThemeSwitcher } from "react-css-theme-switcher";
-import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, VAULT_ABI, VAULT_ADDRESS, RARI_ABI, RARI_ADDRESS, getPlaceholderJSONManifest } from "./constants";
+const axios = require("axios");
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -118,15 +119,15 @@ function App(props) {
 
   // EXTERNAL CONTRACT EXAMPLE:
   //
-  // If you want to bring in the mainnet DAI contract it would look like:
-  const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI);
-  console.log("🌍 DAI contract on mainnet:", mainnetDAIContract);
-  //
-  // Then read your DAI balance like:
-  const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", [
-    "0x34aA3F359A9D614239015126635CE7732c18fDF3",
-  ]);
-  console.log("🥇 myMainnetDAIBalance:", myMainnetDAIBalance);
+  const rinkebyRariContract = useExternalContractLoader(localProvider, RARI_ADDRESS, RARI_ABI);
+  console.log("🌍 RARI contract on rinkeby:", rinkebyRariContract);
+
+  const vaultId = 34;
+  const rinkebyVaultContract = useExternalContractLoader(localProvider, VAULT_ADDRESS, VAULT_ABI);
+  console.log("🌍 Vault contract on rinkeby:", rinkebyVaultContract);
+
+  const myRinkebyVaultHoldings = useContractReader({ XSTORE : rinkebyVaultContract }, "XSTORE", "holdingsLength", [vaultId]);
+  console.log("🥇 myRinkebyVaultHoldings:", myRinkebyVaultHoldings);
 
   // keep track of a variable from the contract in the local React state:
   const numberOfDrops = useContractReader(readContracts,"TokenSale", "numberOfDrops")
@@ -167,6 +168,59 @@ function App(props) {
     }
     updateTokenSaleBalance()
   },[ address, yourNumberOfDrops, transferEvents ])
+
+  //
+  // 🧠 This effect will update token sale by polling when number of drops changes
+  //
+  const vaultHoldingsLength = myRinkebyVaultHoldings && myRinkebyVaultHoldings.toNumber && myRinkebyVaultHoldings.toNumber()
+  const [ yourVaultHoldings, setYourVaultHoldings ] = useState([])
+
+  useEffect(()=>{
+    const updateVaultHoldings = async () => {
+      console.log(`Updating holdings`)
+      let vaultHoldingsUpdate = []
+      if (vaultHoldingsLength) {
+      console.log(`Updating holdings: ${myRinkebyVaultHoldings.toNumber()}`)
+
+      for(let holdingsIndex=0;holdingsIndex<myRinkebyVaultHoldings.toNumber();holdingsIndex++){
+        try{
+          console.log("Getting holding index",holdingsIndex)
+          const tokenId = await rinkebyVaultContract.holdingsAt(vaultId, holdingsIndex)
+          const tokenURI = await rinkebyRariContract.tokenURI(tokenId.toString())
+          const ipfsHash =  tokenURI.replace("ipfs:/ipfs/","")
+          console.log("NFT tokenId",tokenId.toString())
+          console.log("NFT tokenURI",tokenURI.toString())
+          console.log("ipfsHash",ipfsHash)
+          const metadataUri = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
+          // const metadataUri = `https://gateway.pinata.cloud/ipfs/QmRxyfRwonZo9oXtBGaz2PDbJB7snm6R645irzGqrqKgJh`
+
+          try{
+            const jsonManifest = await axios.get(metadataUri, {timeout: 100}).then(function (response) {
+              console.log(response.data)
+              return response.data
+            })
+            const imageURI = jsonManifest.image
+            const imageIpfsHash = imageURI.replace("ipfs://ipfs/","")
+            const renderUri = `https://gateway.pinata.cloud/ipfs/${imageIpfsHash}`
+            console.log("jsonManifest",jsonManifest)
+            vaultHoldingsUpdate.push({ id:tokenId, uri:tokenURI, renderUri, ...jsonManifest })
+          }catch(e){
+            console.log('🧙 This NFT is still hidden')
+            const placeholderManifest = getPlaceholderJSONManifest(ipfsHash, tokenId)
+            vaultHoldingsUpdate.push({ id:tokenId, uri:tokenURI, ...placeholderManifest })
+          }
+
+        }catch(e){
+          alert('failed')
+          console.log(e)
+        }
+      }
+      }
+      setYourVaultHoldings(vaultHoldingsUpdate)
+    }
+    updateVaultHoldings()
+  },[ vaultHoldingsLength])
+
 
 
   /*
@@ -333,6 +387,7 @@ function App(props) {
           </Route>
           <Route path="/gallery">
             <Gallery
+            tokens={yourVaultHoldings}
             /* address={address} */
             /* yourLocalBalance={yourLocalBalance} */
             /* mainnetProvider={mainnetProvider} */

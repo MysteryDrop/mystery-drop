@@ -39,6 +39,7 @@
     "generate": "hardhat generate",
     "account": "hardhat account",
     "reveal": "hardhat run scripts/reveal.js",
+    "resolve": "hardhat run scripts/resolve.js",
     "mint": "hardhat run scripts/mintRari.js",
     "mintAndPin": "hardhat run scripts/mintAndPinRari.js"
   }
