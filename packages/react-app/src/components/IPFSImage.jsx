@@ -7,5 +7,5 @@ import { useThemeSwitcher } from "react-css-theme-switcher";
 export default function IPFSImage({ uri }) {
   const { currentTheme } = useThemeSwitcher();
 
-  return <img alt="nft" src={uri ? uri : currentTheme === "dark" ? defaultDark : defaultWhite} />;
+  return <img alt="nft" src={uri !== "default" ? uri : currentTheme === "dark" ? defaultDark : defaultWhite} />;
 }
