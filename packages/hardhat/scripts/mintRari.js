@@ -30,7 +30,7 @@ const mintWithoutPin = async (tokenId, filePath, nftName, dog) => {
   const dataToUpload = fs.createReadStream(filePath);
   const ipfsResult = await ipfs.add(dataToUpload, {onlyHash: true})
 
-  const externalUrl = `https://rinkeby.rarible.com/${contractAddress}:${tokenId}`
+  const externalUrl = `https://rinkeby.rarible.com/token/${contractAddress}:${tokenId}`
   const metadata = {
     "name": nftName,
     "description": "Demo NFT using Pexel free images",
