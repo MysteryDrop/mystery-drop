@@ -10,11 +10,14 @@ const main = async () => {
   console.log("\n\n 📡 Deploying...\n");
 
   const anyToken = await deploy("AnyERC20") // <-- add in constructor args like line 19 vvvv
+  const anyToken2 = await deploy("AnyERC20") // <-- add in constructor args like line 19 vvvv
   const tokenSale = await deploy("TokenSale") // <-- add in constructor args like line 19 vvvv
 
   await tokenSale.setDrop(anyToken.address, ethers.utils.parseEther("0.01"))
+  await tokenSale.setDrop(anyToken2.address, ethers.utils.parseEther("0.001"))
 
   await anyToken.mint(tokenSale.address, 10)
+  await anyToken2.mint(tokenSale.address, 20)
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
 

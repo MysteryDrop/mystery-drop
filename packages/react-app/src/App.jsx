@@ -139,6 +139,10 @@ function App(props) {
   const numberOfDrops = useContractReader(readContracts,"TokenSale", "numberOfDrops")
   console.log("🤗 number of drops:",numberOfDrops)
 
+  //📟 Listen for broadcast events
+  const transferEvents = useEventListener(readContracts, "TokenSale", "Transfer", localProvider, 1);
+  console.log("📟 Transfer events:",transferEvents)
+
   //
   // 🧠 This effect will update token sale by polling when number of drops changes
   //
@@ -157,7 +161,7 @@ function App(props) {
           const tokenAddress = await readContracts.TokenSale.dropAddress(tokenIndex)
           console.log("tokenId",tokenAddress)
 
-          const yourBalance = await readContracts.TokenSale.yourBalance(tokenAddress);
+          const yourBalance = await readContracts.TokenSale.balanceOf(tokenAddress, address);
           const tokensAvailable = await readContracts.TokenSale.tokensAvailable(tokenAddress);
           const currentPrice = await readContracts.TokenSale.dropPrice(tokenAddress);
 
@@ -169,7 +173,7 @@ function App(props) {
       setYourDrops(tokenSaleUpdate)
     }
     updateTokenSaleBalance()
-  },[ address, yourNumberOfDrops ])
+  },[ address, yourNumberOfDrops, transferEvents ])
 
 
   /*
@@ -315,8 +319,11 @@ function App(props) {
                     <List.Item key={id}>
                       <Purchase
                         availTokens={item.tokensAvailable}
-                        wallet={null}
+                        yourBalance={item.yourBalance}
+                        tokenAddress={item.tokenAddress}
                         currPrice={item.currentPrice}
+                        tx={tx}
+                        writeContracts={writeContracts}
                         /* name="YourContract" */
                         /* signer={userProvider.getSigner()} */
                         /* provider={localProvider} */

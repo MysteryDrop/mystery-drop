@@ -7,6 +7,12 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract TokenSale is Ownable {
 
+  event Transfer(
+    address indexed _dropAddress,
+    address indexed _to,
+    uint256 _value
+  );
+
   using SafeMath for uint256;
 
   mapping (address => uint256) public dropPrice;
@@ -29,6 +35,7 @@ contract TokenSale is Ownable {
     ERC20 token = ERC20(tokenContract);
     require(msg.value == dropPrice[tokenContract].mul(quantity), "Must send specified amount of ETH");
     require(token.balanceOf(address(this)) >= quantity, "Attempted to purchase too many tokens");
+    Transfer(tokenContract, msg.sender, quantity);
     token.transfer(msg.sender, quantity);
   }
 
@@ -37,9 +44,9 @@ contract TokenSale is Ownable {
     return token.balanceOf(address(this));
   }
 
-  function yourBalance(address tokenContract) external view returns (uint256) {
+  function balanceOf(address tokenContract, address userAddress) external view returns (uint256) {
     ERC20 token = ERC20(tokenContract);
-    return token.balanceOf(msg.sender);
+    return token.balanceOf(userAddress);
   }
 
 }
