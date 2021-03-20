@@ -52,6 +52,15 @@ export default function Gallery() {
       {tokens.map(token => (
         <div key={token.name}>
           <IPFSImage hash={token.image} />
+          <div className="image-overlay">
+            <button
+              onClick={() => {
+                window.open(token.external_url);
+              }}
+            >
+              View on Rarible
+            </button>
+          </div>
         </div>
       ))}
     </div>
