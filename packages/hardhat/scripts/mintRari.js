@@ -56,31 +56,31 @@ const mintWithoutPin = async (tokenId, filePath, nftName, dog) => {
 const main = async () => {
 
   // IMAGE 1
-  const tokenId1 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000003"
+  const tokenId1 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000008"
   const filePath1 = '/Users/isaacpatka/hackathon/nfthack/mysterydrop/scaffold-eth/packages/hardhat/scripts/images/pexels-anna-shvets-4588047.jpg'
   await mintWithoutPin(tokenId1, filePath1, 'Valentine', 'true')
   await sleep(delayMS)
 
   // IMAGE 2
-  const tokenId2 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000004"
+  const tokenId2 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000009"
   const filePath2 = '/Users/isaacpatka/hackathon/nfthack/mysterydrop/scaffold-eth/packages/hardhat/scripts/images/pexels-anna-shvets-4588435.jpg'
   await mintWithoutPin(tokenId2, filePath2, 'Hoodie', 'true')
   await sleep(delayMS)
 
   // IMAGE 3
-  const tokenId3 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000005"
+  const tokenId3 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000010"
   const filePath3 = '/Users/isaacpatka/hackathon/nfthack/mysterydrop/scaffold-eth/packages/hardhat/scripts/images/pexels-mathilde-langevin-7082442.jpg'
   await mintWithoutPin(tokenId3, filePath3, 'Cat', 'false')
   await sleep(delayMS)
 
   // IMAGE 4
-  const tokenId4 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000006"
+  const tokenId4 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000011"
   const filePath4 = '/Users/isaacpatka/hackathon/nfthack/mysterydrop/scaffold-eth/packages/hardhat/scripts/images/pexels-sam-lion-5732461.jpg'
   await mintWithoutPin(tokenId4, filePath4, 'Doctor', 'true')
   await sleep(delayMS)
 
   // IMAGE 5
-  const tokenId5 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000007"
+  const tokenId5 = "0x34728Ddf96521964B7D0Ce263886564BC21A7dCD000000000000000000000012"
   const filePath5 = '/Users/isaacpatka/hackathon/nfthack/mysterydrop/scaffold-eth/packages/hardhat/scripts/images/pexels-valeria-boltneva-1805164.jpg'
   await mintWithoutPin(tokenId5, filePath5, 'Doge', 'true')
 

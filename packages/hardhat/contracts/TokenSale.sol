@@ -33,7 +33,7 @@ contract TokenSale is Ownable {
 
   function buyToken(address tokenContract, uint256 quantity) payable public {
     ERC20 token = ERC20(tokenContract);
-    require(msg.value == dropPrice[tokenContract].mul(quantity), "Must send specified amount of ETH");
+    require(msg.value == dropPrice[tokenContract].mul(quantity.div(1 ether)), "Must send specified amount of ETH");
     require(token.balanceOf(address(this)) >= quantity, "Attempted to purchase too many tokens");
     Transfer(tokenContract, msg.sender, quantity);
     token.transfer(msg.sender, quantity);

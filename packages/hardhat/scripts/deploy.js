@@ -5,10 +5,22 @@ const { config, ethers, tenderly, run } = require("hardhat");
 const { utils } = require("ethers");
 const R = require("ramda");
 
-const main = async () => {
+const useRinkeby = async () => {
+  const tokenSaleAddress = "0x71130d12560551da11e995c0e99873be57C9c615"
+  const xTokenAddress = '0x723C4535D1FC67dbd5b00d62E07D736E339285fF'
+  const tokenSale = await ethers.getContractAt("TokenSale", tokenSaleAddress)
+  await tokenSale.setDrop(xTokenAddress, utils.parseEther("0.01"))
+}
 
-  console.log("\n\n 📡 Deploying...\n");
+const deployRinkeby = async () => {
 
+  const xTokenAddress = '0xb58897Fe688A13ea0F73e4b9E8A4d0f8AfAB22EF'
+
+  const tokenSale = await deploy("TokenSale")
+  await tokenSale.setDrop(xTokenAddress, ethers.utils.parseEther("0.01"))
+}
+
+const deployLocal = async () => {
   const anyToken = await deploy("AnyERC20") // <-- add in constructor args like line 19 vvvv
   const anyToken2 = await deploy("AnyERC20") // <-- add in constructor args like line 19 vvvv
   const tokenSale = await deploy("TokenSale") // <-- add in constructor args like line 19 vvvv
@@ -16,8 +28,18 @@ const main = async () => {
   await tokenSale.setDrop(anyToken.address, ethers.utils.parseEther("0.01"))
   await tokenSale.setDrop(anyToken2.address, ethers.utils.parseEther("0.001"))
 
-  await anyToken.mint(tokenSale.address, 10)
-  await anyToken2.mint(tokenSale.address, 20)
+  await anyToken.mint(tokenSale.address, utils.parseEther("10"))
+  await anyToken2.mint(tokenSale.address, utils.parseEther("20"))
+
+}
+
+const main = async () => {
+
+  console.log("\n\n 📡 Deploying...\n");
+
+  // await useRinkeby()
+  await useRinkeby()
+
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
 
