@@ -68,7 +68,6 @@ const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
 
 // 🔭 block explorer URL
 const blockExplorer = targetNetwork.blockExplorer;
-
 function App(props) {
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
   if (DEBUG) console.log("🌎 mainnetProvider", mainnetProvider);
@@ -224,12 +223,12 @@ function App(props) {
       {networkDisplay}
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/purchase">
+          <Menu.Item key="/">
             <Link
               onClick={() => {
-                setRoute("/purchase");
+                setRoute("/");
               }}
-              to="/purchase"
+              to="/"
             >
               Purchase
             </Link>
@@ -269,14 +268,17 @@ function App(props) {
         <Switch>
           <Route exact path="/">
             <Purchase
-            /* name="YourContract" */
-            /* signer={userProvider.getSigner()} */
-            /* provider={localProvider} */
-            /* address={address} */
-            /* blockExplorer={blockExplorer} */
+              availTokens={6}
+              wallet={null}
+              currPrice={0.01}
+              /* name="YourContract" */
+              /* signer={userProvider.getSigner()} */
+              /* provider={localProvider} */
+              /* address={address} */
+              /* blockExplorer={blockExplorer} */
             />
           </Route>
-          <Route path="/hints">
+          <Route path="/gallery">
             <Gallery
             /* address={address} */
             /* yourLocalBalance={yourLocalBalance} */
@@ -285,20 +287,20 @@ function App(props) {
             />
           </Route>
           <Route path="/debugcontracts">
-              <Contract
-                name="TokenSale"
-                signer={userProvider.getSigner()}
-                provider={localProvider}
-                address={address}
-                blockExplorer={blockExplorer}
-              />
-              <Contract
-                name="AnyERC20"
-                signer={userProvider.getSigner()}
-                provider={localProvider}
-                address={address}
-                blockExplorer={blockExplorer}
-              />
+            <Contract
+              name="TokenSale"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+            <Contract
+              name="AnyERC20"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
           </Route>
           {/* <Route path="/exampleui"> */}
           {/*   <ExampleUI */}

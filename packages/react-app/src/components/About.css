@@ -1,0 +1,18 @@
+#about {
+  margin: auto;
+  margin-top: 5%;
+  width: 90%;
+  max-width: 1080px;
+  font-family: "Montserrat", sans-serif;
+  text-align: left;
+}
+
+#about h1 {
+  font-size: 36px;
+  font-weight: 900;
+  color: #4a9d45;
+}
+
+#about p {
+  font-size: 18px;
+}
