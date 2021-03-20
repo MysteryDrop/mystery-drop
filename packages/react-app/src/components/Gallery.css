@@ -18,6 +18,12 @@
   width: 500px;
 }
 
+#gallery div video {
+  position: relative;
+  width: 500px;
+  display: block;
+}
+
 #gallery div:hover .image-overlay {
   display: flex;
 }
@@ -55,5 +61,11 @@
   #gallery div img {
     width: 100%;
     margin: 0;
+  }
+
+  #gallery div video {
+    width: 100%;
+    margin: 0;
+    display: block;
   }
 }
