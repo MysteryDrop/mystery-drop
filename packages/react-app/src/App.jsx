@@ -68,7 +68,6 @@ const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
 
 // 🔭 block explorer URL
 const blockExplorer = targetNetwork.blockExplorer;
-
 function App(props) {
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
   if (DEBUG) console.log("🌎 mainnetProvider", mainnetProvider);
@@ -276,7 +275,7 @@ function App(props) {
             /* blockExplorer={blockExplorer} */
             />
           </Route>
-          <Route path="/hints">
+          <Route path="/gallery">
             <Gallery
             /* address={address} */
             /* yourLocalBalance={yourLocalBalance} */
@@ -285,20 +284,20 @@ function App(props) {
             />
           </Route>
           <Route path="/debugcontracts">
-              <Contract
-                name="TokenSale"
-                signer={userProvider.getSigner()}
-                provider={localProvider}
-                address={address}
-                blockExplorer={blockExplorer}
-              />
-              <Contract
-                name="AnyERC20"
-                signer={userProvider.getSigner()}
-                provider={localProvider}
-                address={address}
-                blockExplorer={blockExplorer}
-              />
+            <Contract
+              name="TokenSale"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+            <Contract
+              name="AnyERC20"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
           </Route>
           {/* <Route path="/exampleui"> */}
           {/*   <ExampleUI */}
