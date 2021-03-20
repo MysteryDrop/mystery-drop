@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
-import { Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
+import { Row, Col, Button, Menu, Alert, List, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
@@ -57,6 +57,7 @@ if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 // attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
 const scaffoldEthProvider = new JsonRpcProvider("https://rpc.scaffoldeth.io:48544");
 const mainnetInfura = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
+const rinkebyInfura = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
 // 🏠 Your local provider is usually pointed at your local blockchain
@@ -133,6 +134,43 @@ function App(props) {
   //📟 Listen for broadcast events
   const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
   console.log("📟 SetPurpose events:", setPurposeEvents);
+
+  // keep track of a variable from the contract in the local React state:
+  const numberOfDrops = useContractReader(readContracts,"TokenSale", "numberOfDrops")
+  console.log("🤗 number of drops:",numberOfDrops)
+
+  //
+  // 🧠 This effect will update token sale by polling when number of drops changes
+  //
+  const yourNumberOfDrops = numberOfDrops && numberOfDrops.toNumber && numberOfDrops.toNumber()
+  const [ yourDrops, setYourDrops ] = useState()
+
+  useEffect(()=>{
+    const updateTokenSaleBalance = async () => {
+      console.log("Updating drops")
+      let tokenSaleUpdate = []
+      if (numberOfDrops) {
+
+      for(let tokenIndex=0;tokenIndex<numberOfDrops.toNumber();tokenIndex++){
+        try{
+          console.log("Getting token index",tokenIndex)
+          const tokenAddress = await readContracts.TokenSale.dropAddress(tokenIndex)
+          console.log("tokenId",tokenAddress)
+
+          const yourBalance = await readContracts.TokenSale.yourBalance(tokenAddress);
+          const tokensAvailable = await readContracts.TokenSale.tokensAvailable(tokenAddress);
+          const currentPrice = await readContracts.TokenSale.dropPrice(tokenAddress);
+
+            tokenSaleUpdate.push({ tokenAddress, currentPrice, tokensAvailable, yourBalance});
+
+        }catch(e){console.log(e)}
+      }
+      }
+      setYourDrops(tokenSaleUpdate)
+    }
+    updateTokenSaleBalance()
+  },[ address, yourNumberOfDrops ])
+
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -267,16 +305,31 @@ function App(props) {
 
         <Switch>
           <Route exact path="/">
-            <Purchase
-              availTokens={6}
-              wallet={null}
-              currPrice={0.01}
-              /* name="YourContract" */
-              /* signer={userProvider.getSigner()} */
-              /* provider={localProvider} */
-              /* address={address} */
-              /* blockExplorer={blockExplorer} */
-            />
+            <div style={{ width:640, margin: "auto", marginTop:32, paddingBottom:32 }}>
+              <List
+                dataSource={yourDrops}
+                renderItem={(item) => {
+                  const id = item.tokenAddress
+                  console.log({id})
+                  return (
+                    <List.Item key={id}>
+                      <Purchase
+                        availTokens={item.tokensAvailable}
+                        wallet={null}
+                        currPrice={item.currentPrice}
+                        /* name="YourContract" */
+                        /* signer={userProvider.getSigner()} */
+                        /* provider={localProvider} */
+                        /* address={address} */
+                        /* blockExplorer={blockExplorer} */
+                      />
+                    </List.Item>
+                  )
+                }}
+              >
+
+              </List>
+            </div>
           </Route>
           <Route path="/gallery">
             <Gallery

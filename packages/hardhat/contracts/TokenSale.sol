@@ -9,20 +9,37 @@ contract TokenSale is Ownable {
 
   using SafeMath for uint256;
 
-  mapping (address => uint256) public drops;
+  mapping (address => uint256) public dropPrice;
+  mapping (uint256 => address) public dropAddress;
+
+  uint256 public numberOfDrops;
 
   constructor() public {
   }
 
   function setDrop(address tokenContract, uint256 salePrice) public onlyOwner {
-    drops[tokenContract] = salePrice;
+    if (dropPrice[tokenContract] == 0) {
+      numberOfDrops++;
+      dropAddress[numberOfDrops-1] = tokenContract;
+    }
+    dropPrice[tokenContract] = salePrice;
   }
 
   function buyToken(address tokenContract, uint256 quantity) payable public {
     ERC20 token = ERC20(tokenContract);
-    require(msg.value == drops[tokenContract].mul(quantity), "Must send specified amount of ETH");
+    require(msg.value == dropPrice[tokenContract].mul(quantity), "Must send specified amount of ETH");
     require(token.balanceOf(address(this)) >= quantity, "Attempted to purchase too many tokens");
     token.transfer(msg.sender, quantity);
+  }
+
+  function tokensAvailable(address tokenContract) external view returns (uint256) {
+    ERC20 token = ERC20(tokenContract);
+    return token.balanceOf(address(this));
+  }
+
+  function yourBalance(address tokenContract) external view returns (uint256) {
+    ERC20 token = ERC20(tokenContract);
+    return token.balanceOf(msg.sender);
   }
 
 }

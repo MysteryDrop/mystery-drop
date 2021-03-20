@@ -1,1 +1,1 @@
-module.exports = ["AnyERC20","TokenSale","YourContract"];
+module.exports = ["AnyERC20","TokenSale"];
