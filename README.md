@@ -64,7 +64,15 @@ https://rinkeby.nftx.org/#/fund/35
 ![Screen Shot 2021-03-20 at 10 28 09 PM](https://user-images.githubusercontent.com/4401444/111891759-9371b080-89cb-11eb-9aca-8ae1e500d605.png)
 ![Screen Shot 2021-03-20 at 10 27 52 PM](https://user-images.githubusercontent.com/4401444/111891760-9371b080-89cb-11eb-8c27-da24245fe504.png)
 
+3. **Deploy Token Sale**
 
+https://rinkeby.etherscan.io/tx/0x3be36ca6a94b0e51138d4ce5a672e2ea9efb1be43cdf6b2c34f06fe145a3c5e4
+
+4. **Deposit XTokens into Token Sale**
+
+https://rinkeby.etherscan.io/tx/0xc26dcb4953dc302958e5838657f7940fd466b4488075cabf8ed4f64eea74a8c6
+
+5. **Sell XTokens on MysteryDrop**
 
 # About the team
 **Isaac Patka**
