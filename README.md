@@ -24,13 +24,45 @@ We took full advantage of Austin's scaffold-eth framework. It helped us deliver 
 
 ## Setup Procedure
 
-1. Mint NFTs
+1. **Mint NFTs**
 
 This script calculates the IPFS CIDs for the image & metadata, then mints the NFT using Rarible's contracts
+
+https://rinkeby.etherscan.io/tx/0x2152758762a45d10b4363ccb61545ba7624576f21cede748c1aed1b9bf9afe6f
 
 `yarn mint`
 
 ![Screen Shot 2021-03-20 at 10 15 52 PM](https://user-images.githubusercontent.com/4401444/111891503-ef3b3a00-89c9-11eb-9113-7e07f7552f51.png)
+
+
+Notice the images are missing
+
+![Screen Shot 2021-03-20 at 10 24 42 PM](https://user-images.githubusercontent.com/4401444/111891693-1ba38600-89cb-11eb-89ba-70cd7c359b07.png)
+
+
+
+2. **Create NFTX Vault**
+
+Create:
+
+https://rinkeby.etherscan.io/tx/0x5e1c22d98140daa2fdb7596e492ef851d496f2bbdd9aeb06ce669bd1f6c8eb73
+
+Finalize:
+
+https://rinkeby.etherscan.io/tx/0xab578d358e6019b33e9756b325a2693705e24c6118769f8e3d335879d895d651
+
+Approve minting:
+
+https://rinkeby.etherscan.io/tx/0xb068b43974e76f8f52e21bc560fb0184927dcdd901e56320a113dd90de6fdc9f
+
+Mint:
+
+https://rinkeby.etherscan.io/tx/0x9909c080c1752c589a550b1dffb86b9caacbb909cc902e8ce3cbdd6f8d9128c5
+
+https://rinkeby.nftx.org/#/fund/35
+
+![Screen Shot 2021-03-20 at 10 28 09 PM](https://user-images.githubusercontent.com/4401444/111891759-9371b080-89cb-11eb-9aca-8ae1e500d605.png)
+![Screen Shot 2021-03-20 at 10 27 52 PM](https://user-images.githubusercontent.com/4401444/111891760-9371b080-89cb-11eb-8c27-da24245fe504.png)
 
 
 
