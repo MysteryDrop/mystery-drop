@@ -24,3 +24,30 @@ We took full advantage of Austin's scaffold-eth framework. It helped us deliver 
 
 ## Setup Procedure
 
+
+# About the team
+Owen Murovec
+
+@owenmurovec
+
+[murovec.me](http://murovec.me/)
+
+Gianni D'Alerta
+
+[giannidalerta.com](http://giannidalerta.com/)
+
+@giannidalerta
+
+Isaac Patka
+
+@IsaacPatka
+
+@izikp on Clubhouse
+
+ipatka@gmail.com
+
+Mark Redito
+
+@markredito
+
+[markredito.com](http://markredito.com/)
