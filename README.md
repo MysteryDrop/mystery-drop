@@ -74,6 +74,10 @@ https://rinkeby.etherscan.io/tx/0xc26dcb4953dc302958e5838657f7940fd466b4488075ca
 
 5. **Sell XTokens on MysteryDrop**
 
+![Screen Shot 2021-03-20 at 11 02 18 PM](https://user-images.githubusercontent.com/4401444/111892288-607deb80-89d0-11eb-8339-476ce252dc78.png)
+![Screen Shot 2021-03-20 at 4 54 23 PM](https://user-images.githubusercontent.com/4401444/111892299-84d9c800-89d0-11eb-92a2-e3969dbe57fe.png)
+
+
 # About the team
 **Isaac Patka**
 @IsaacPatka
