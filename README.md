@@ -29,33 +29,35 @@ We took full advantage of Austin's scaffold-eth framework. It helped us deliver 
 This script calculates the IPFS CIDs for the image & metadata, then mints the NFT using Rarible's contracts
 
 `yarn mint`
+
 ![Screen Shot 2021-03-20 at 10 15 52 PM](https://user-images.githubusercontent.com/4401444/111891503-ef3b3a00-89c9-11eb-9113-7e07f7552f51.png)
 
 
 
 # About the team
-Owen Murovec
-
-@owenmurovec
-
-[murovec.me](http://murovec.me/)
-
-Gianni D'Alerta
-
-[giannidalerta.com](http://giannidalerta.com/)
-
-@giannidalerta
-
-Isaac Patka
-
+**Isaac Patka**
 @IsaacPatka
-
 @izikp on Clubhouse
-
 ipatka@gmail.com
 
-Mark Redito
+**Owen Murovec**
+@owenmurovec
+[murovec.me](http://murovec.me/)
 
+**Gianni D'Alerta**
+[giannidalerta.com](http://giannidalerta.com/)
+@giannidalerta
+
+**Mark Redito**
 @markredito
-
 [markredito.com](http://markredito.com/)
+
+Mark created & contributed the beautiful series that you'll see in our demos.
+
+"TX" by Mark Redito x Gian Ferrer
+
+An exploration of moods and emotions through shapes, color, and texture. A visual of continuous flow. 
+
+Very much like blockchain systems that continue to validate and write transactions on an endless ledger, our thoughts and feelings keep moving, iterating, and evolving.
+
+This collection visualizes these emotions.
