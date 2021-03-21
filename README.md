@@ -24,6 +24,14 @@ We took full advantage of Austin's scaffold-eth framework. It helped us deliver 
 
 ## Setup Procedure
 
+1. Mint NFTs
+
+This script calculates the IPFS CIDs for the image & metadata, then mints the NFT using Rarible's contracts
+
+`yarn mint`
+![Screen Shot 2021-03-20 at 10 15 52 PM](https://user-images.githubusercontent.com/4401444/111891503-ef3b3a00-89c9-11eb-9113-7e07f7552f51.png)
+
+
 
 # About the team
 Owen Murovec
