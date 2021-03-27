@@ -3,6 +3,7 @@ import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
+import "./App.sass";
 import { Row, Col, Button, Menu, Alert, List, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -23,7 +24,18 @@ import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views";
 import { useThemeSwitcher } from "react-css-theme-switcher";
-import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, VAULT_ABI, VAULT_ADDRESS, RARI_ABI, RARI_ADDRESS, getPlaceholderJSONManifest } from "./constants";
+import {
+  INFURA_ID,
+  DAI_ADDRESS,
+  DAI_ABI,
+  NETWORK,
+  NETWORKS,
+  VAULT_ABI,
+  VAULT_ADDRESS,
+  RARI_ABI,
+  RARI_ADDRESS,
+  getPlaceholderJSONManifest,
+} from "./constants";
 const axios = require("axios");
 
 /*
@@ -126,102 +138,102 @@ function App(props) {
   const rinkebyVaultContract = useExternalContractLoader(localProvider, VAULT_ADDRESS, VAULT_ABI);
   console.log("🌍 Vault contract on rinkeby:", rinkebyVaultContract);
 
-  const myRinkebyVaultHoldings = useContractReader({ XSTORE : rinkebyVaultContract }, "XSTORE", "holdingsLength", [vaultId]);
+  const myRinkebyVaultHoldings = useContractReader({ XSTORE: rinkebyVaultContract }, "XSTORE", "holdingsLength", [
+    vaultId,
+  ]);
   console.log("🥇 myRinkebyVaultHoldings:", myRinkebyVaultHoldings);
 
   // keep track of a variable from the contract in the local React state:
-  const numberOfDrops = useContractReader(readContracts,"TokenSale", "numberOfDrops")
-  console.log("🤗 number of drops:",numberOfDrops)
+  const numberOfDrops = useContractReader(readContracts, "TokenSale", "numberOfDrops");
+  console.log("🤗 number of drops:", numberOfDrops);
 
   //📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "TokenSale", "Transfer", localProvider, 1);
-  console.log("📟 Transfer events:",transferEvents)
+  console.log("📟 Transfer events:", transferEvents);
 
   //
   // 🧠 This effect will update token sale by polling when number of drops changes
   //
-  const yourNumberOfDrops = numberOfDrops && numberOfDrops.toNumber && numberOfDrops.toNumber()
-  const [ yourDrops, setYourDrops ] = useState()
+  const yourNumberOfDrops = numberOfDrops && numberOfDrops.toNumber && numberOfDrops.toNumber();
+  const [yourDrops, setYourDrops] = useState();
 
-  useEffect(()=>{
+  useEffect(() => {
     const updateTokenSaleBalance = async () => {
-      console.log("Updating drops")
-      let tokenSaleUpdate = []
+      console.log("Updating drops");
+      let tokenSaleUpdate = [];
       if (numberOfDrops) {
+        for (let tokenIndex = 0; tokenIndex < numberOfDrops.toNumber(); tokenIndex++) {
+          try {
+            console.log("Getting token index", tokenIndex);
+            const tokenAddress = await readContracts.TokenSale.dropAddress(tokenIndex);
+            console.log("tokenId", tokenAddress);
 
-      for(let tokenIndex=0;tokenIndex<numberOfDrops.toNumber();tokenIndex++){
-        try{
-          console.log("Getting token index",tokenIndex)
-          const tokenAddress = await readContracts.TokenSale.dropAddress(tokenIndex)
-          console.log("tokenId",tokenAddress)
+            const yourBalance = await readContracts.TokenSale.balanceOf(tokenAddress, address);
+            const tokensAvailable = await readContracts.TokenSale.tokensAvailable(tokenAddress);
+            const currentPrice = await readContracts.TokenSale.dropPrice(tokenAddress);
 
-          const yourBalance = await readContracts.TokenSale.balanceOf(tokenAddress, address);
-          const tokensAvailable = await readContracts.TokenSale.tokensAvailable(tokenAddress);
-          const currentPrice = await readContracts.TokenSale.dropPrice(tokenAddress);
-
-            tokenSaleUpdate.push({ tokenAddress, currentPrice, tokensAvailable, yourBalance});
-
-        }catch(e){console.log(e)}
-      }
-      }
-      setYourDrops(tokenSaleUpdate)
-    }
-    updateTokenSaleBalance()
-  },[ address, yourNumberOfDrops, transferEvents ])
-
-  //
-  // 🧠 This effect will update token sale by polling when number of drops changes
-  //
-  const vaultHoldingsLength = myRinkebyVaultHoldings && myRinkebyVaultHoldings.toNumber && myRinkebyVaultHoldings.toNumber()
-  const [ yourVaultHoldings, setYourVaultHoldings ] = useState([])
-
-  useEffect(()=>{
-    const updateVaultHoldings = async () => {
-      console.log(`Updating holdings`)
-      let vaultHoldingsUpdate = []
-      if (vaultHoldingsLength) {
-      console.log(`Updating holdings: ${myRinkebyVaultHoldings.toNumber()}`)
-
-      for(let holdingsIndex=0;holdingsIndex<myRinkebyVaultHoldings.toNumber();holdingsIndex++){
-        try{
-          console.log("Getting holding index",holdingsIndex)
-          const tokenId = await rinkebyVaultContract.holdingsAt(vaultId, holdingsIndex)
-          const tokenURI = await rinkebyRariContract.tokenURI(tokenId.toString())
-          const ipfsHash =  tokenURI.replace("ipfs:/ipfs/","")
-          console.log("NFT tokenId",tokenId.toString())
-          console.log("NFT tokenURI",tokenURI.toString())
-          console.log("ipfsHash",ipfsHash)
-          const metadataUri = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
-          // const metadataUri = `https://gateway.pinata.cloud/ipfs/QmRxyfRwonZo9oXtBGaz2PDbJB7snm6R645irzGqrqKgJh`
-
-          try{
-            const jsonManifest = await axios.get(metadataUri, {timeout: 100}).then(function (response) {
-              console.log(response.data)
-              return response.data
-            })
-            const imageURI = jsonManifest.image
-            const imageIpfsHash = imageURI.replace("ipfs://ipfs/","")
-            const renderUri = `https://gateway.pinata.cloud/ipfs/${imageIpfsHash}`
-            console.log("jsonManifest",jsonManifest)
-            vaultHoldingsUpdate.push({ id:tokenId, uri:tokenURI, renderUri, ...jsonManifest })
-          }catch(e){
-            console.log('🧙 This NFT is still hidden')
-            const placeholderManifest = getPlaceholderJSONManifest(ipfsHash, tokenId)
-            vaultHoldingsUpdate.push({ id:tokenId, uri:tokenURI, ...placeholderManifest })
+            tokenSaleUpdate.push({ tokenAddress, currentPrice, tokensAvailable, yourBalance });
+          } catch (e) {
+            console.log(e);
           }
-
-        }catch(e){
-          alert('failed')
-          console.log(e)
         }
       }
+      setYourDrops(tokenSaleUpdate);
+    };
+    updateTokenSaleBalance();
+  }, [address, yourNumberOfDrops, transferEvents]);
+
+  //
+  // 🧠 This effect will update token sale by polling when number of drops changes
+  //
+  const vaultHoldingsLength =
+    myRinkebyVaultHoldings && myRinkebyVaultHoldings.toNumber && myRinkebyVaultHoldings.toNumber();
+  const [yourVaultHoldings, setYourVaultHoldings] = useState([]);
+
+  useEffect(() => {
+    const updateVaultHoldings = async () => {
+      console.log(`Updating holdings`);
+      let vaultHoldingsUpdate = [];
+      if (vaultHoldingsLength) {
+        console.log(`Updating holdings: ${myRinkebyVaultHoldings.toNumber()}`);
+
+        for (let holdingsIndex = 0; holdingsIndex < myRinkebyVaultHoldings.toNumber(); holdingsIndex++) {
+          try {
+            console.log("Getting holding index", holdingsIndex);
+            const tokenId = await rinkebyVaultContract.holdingsAt(vaultId, holdingsIndex);
+            const tokenURI = await rinkebyRariContract.tokenURI(tokenId.toString());
+            const ipfsHash = tokenURI.replace("ipfs:/ipfs/", "");
+            console.log("NFT tokenId", tokenId.toString());
+            console.log("NFT tokenURI", tokenURI.toString());
+            console.log("ipfsHash", ipfsHash);
+            const metadataUri = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+            // const metadataUri = `https://gateway.pinata.cloud/ipfs/QmRxyfRwonZo9oXtBGaz2PDbJB7snm6R645irzGqrqKgJh`
+
+            try {
+              const jsonManifest = await axios.get(metadataUri, { timeout: 100 }).then(function (response) {
+                console.log(response.data);
+                return response.data;
+              });
+              const imageURI = jsonManifest.image;
+              const imageIpfsHash = imageURI.replace("ipfs://ipfs/", "");
+              const renderUri = `https://gateway.pinata.cloud/ipfs/${imageIpfsHash}`;
+              console.log("jsonManifest", jsonManifest);
+              vaultHoldingsUpdate.push({ id: tokenId, uri: tokenURI, renderUri, ...jsonManifest });
+            } catch (e) {
+              console.log("🧙 This NFT is still hidden");
+              const placeholderManifest = getPlaceholderJSONManifest(ipfsHash, tokenId);
+              vaultHoldingsUpdate.push({ id: tokenId, uri: tokenURI, ...placeholderManifest });
+            }
+          } catch (e) {
+            alert("failed");
+            console.log(e);
+          }
+        }
       }
-      setYourVaultHoldings(vaultHoldingsUpdate)
-    }
-    updateVaultHoldings()
-  },[ vaultHoldingsLength])
-
-
+      setYourVaultHoldings(vaultHoldingsUpdate);
+    };
+    updateVaultHoldings();
+  }, [vaultHoldingsLength]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -308,60 +320,23 @@ function App(props) {
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
-      <Header />
-      {networkDisplay}
+      {DEBUG ? networkDisplay : null}
       <BrowserRouter>
-        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link
-              onClick={() => {
-                setRoute("/");
-              }}
-              to="/"
-            >
-              Purchase
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/gallery">
-            <Link
-              onClick={() => {
-                setRoute("/gallery");
-              }}
-              to="/gallery"
-            >
-              Gallery
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/about">
-            <Link
-              onClick={() => {
-                setRoute("/about");
-              }}
-              to="/about"
-            >
-              How it Works
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/debugcontracts">
-            <Link
-              onClick={() => {
-                setRoute("/debugcontracts");
-              }}
-              to="/debugcontracts"
-            >
-              Debug
-            </Link>
-          </Menu.Item>
-        </Menu>
+        <Header
+          loadWeb3Modal={loadWeb3Modal}
+          setProvider={setInjectedProvider}
+          web3Modal={web3Modal}
+          logoutOfWeb3Modal={web3Modal}
+        />
 
         <Switch>
           <Route exact path="/">
-            <div style={{ width:640, margin: "auto", marginTop:32, paddingBottom:32 }}>
+            <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               <List
                 dataSource={yourDrops}
-                renderItem={(item) => {
-                  const id = item.tokenAddress
-                  console.log({id})
+                renderItem={item => {
+                  const id = item.tokenAddress;
+                  console.log({ id });
                   return (
                     <List.Item key={id}>
                       <Purchase
@@ -378,20 +353,18 @@ function App(props) {
                         /* blockExplorer={blockExplorer} */
                       />
                     </List.Item>
-                  )
+                  );
                 }}
-              >
-
-              </List>
+              ></List>
             </div>
           </Route>
           <Route path="/gallery">
             <Gallery
-            tokens={yourVaultHoldings}
-            /* address={address} */
-            /* yourLocalBalance={yourLocalBalance} */
-            /* mainnetProvider={mainnetProvider} */
-            /* price={price} */
+              tokens={yourVaultHoldings}
+              /* address={address} */
+              /* yourLocalBalance={yourLocalBalance} */
+              /* mainnetProvider={mainnetProvider} */
+              /* price={price} */
             />
           </Route>
           <Route path="/debugcontracts">
@@ -410,94 +383,73 @@ function App(props) {
               blockExplorer={blockExplorer}
             />
           </Route>
-          {/* <Route path="/exampleui"> */}
-          {/*   <ExampleUI */}
-          {/*     address={address} */}
-          {/*     userProvider={userProvider} */}
-          {/*     mainnetProvider={mainnetProvider} */}
-          {/*     localProvider={localProvider} */}
-          {/*     yourLocalBalance={yourLocalBalance} */}
-          {/*     price={price} */}
-          {/*     tx={tx} */}
-          {/*     writeContracts={writeContracts} */}
-          {/*     readContracts={readContracts} */}
-          {/*     purpose={purpose} */}
-          {/*     setPurposeEvents={setPurposeEvents} */}
-          {/*   /> */}
-          {/* </Route> */}
-          {/* <Route path="/mainnetdai"> */}
-          {/*   <Contract */}
-          {/*     name="DAI" */}
-          {/*     customContract={mainnetDAIContract} */}
-          {/*     signer={userProvider.getSigner()} */}
-          {/*     provider={mainnetProvider} */}
-          {/*     address={address} */}
-          {/*     blockExplorer={"https://etherscan.io/"} */}
-          {/*   /> */}
-          {/* </Route> */}
           <Route path="/about">
             <About />
           </Route>
         </Switch>
       </BrowserRouter>
 
-      <ThemeSwitch />
+      {/* <ThemeSwitch /> */}
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
-        <Account
-          address={address}
-          localProvider={localProvider}
-          userProvider={userProvider}
-          mainnetProvider={mainnetProvider}
-          price={price}
-          web3Modal={web3Modal}
-          loadWeb3Modal={loadWeb3Modal}
-          logoutOfWeb3Modal={logoutOfWeb3Modal}
-          blockExplorer={blockExplorer}
-        />
-        {faucetHint}
-      </div>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={8}>
-            <Ramp price={price} address={address} networks={NETWORKS} />
-          </Col>
+      {DEBUG ? (
+        <>
+          <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10, zIndex: 100 }}>
+            <Account
+              address={address}
+              localProvider={localProvider}
+              userProvider={userProvider}
+              mainnetProvider={mainnetProvider}
+              price={price}
+              web3Modal={web3Modal}
+              loadWeb3Modal={loadWeb3Modal}
+              logoutOfWeb3Modal={logoutOfWeb3Modal}
+              blockExplorer={blockExplorer}
+            />
+            {faucetHint}
+          </div>
+          <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
+            <Row align="middle" gutter={[4, 4]}>
+              <Col span={8}>
+                <Ramp price={price} address={address} networks={NETWORKS} />
+              </Col>
 
-          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-            <GasGauge gasPrice={gasPrice} />
-          </Col>
-          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-            <Button
-              onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-              }}
-              size="large"
-              shape="round"
-            >
-              <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                💬
-              </span>
-              Support
-            </Button>
-          </Col>
-        </Row>
+              <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
+                <GasGauge gasPrice={gasPrice} />
+              </Col>
+              <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
+                <Button
+                  onClick={() => {
+                    window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
+                  }}
+                  size="large"
+                  shape="round"
+                >
+                  <span style={{ marginRight: 8 }} role="img" aria-label="support">
+                    💬
+                  </span>
+                  Support
+                </Button>
+              </Col>
+            </Row>
 
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={24}>
-            {
-              /*  if the local provider has a signer, let's show the faucet:  */
-              faucetAvailable ? (
-                <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
-              ) : (
-                ""
-              )
-            }
-          </Col>
-        </Row>
-      </div>
+            <Row align="middle" gutter={[4, 4]}>
+              <Col span={24}>
+                {
+                  /*  if the local provider has a signer, let's show the faucet:  */
+                  faucetAvailable ? (
+                    <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
+                  ) : (
+                    ""
+                  )
+                }
+              </Col>
+            </Row>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

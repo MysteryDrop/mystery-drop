@@ -19,3 +19,4 @@ export { default as ThemeSwitch } from "./ThemeSwitch";
 export { default as About } from "./About";
 export { default as Purchase } from "./Purchase";
 export { default as Gallery } from "./Gallery";
+export { default as WalletConnect } from "./WalletConnect";
