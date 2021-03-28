@@ -59,6 +59,15 @@ export default function Header({ loadWeb3Modal, web3Modal, logoutOfWeb3Modal, se
           </Link>
 
           <Link
+            className={route === "/mint" ? "navbar-item is-selected" : "navbar-item"}
+            to="/mint"
+            onClick={() => {
+              setRoute("/mint");
+            }}
+          >
+            Mint
+          </Link>
+          <Link
             className={route === "/debugcontracts" ? "navbar-item is-selected" : "navbar-item"}
             to="/debugcontracts"
             onClick={() => {

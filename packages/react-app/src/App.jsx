@@ -19,6 +19,7 @@ import {
   useExternalContractLoader,
 } from "./hooks";
 import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch, About, Gallery, Purchase } from "./components";
+import { Mint } from "./pages";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
@@ -61,7 +62,7 @@ const axios = require("axios");
 const targetNetwork = NETWORKS["rinkeby"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = false;
 
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -385,6 +386,9 @@ function App(props) {
           </Route>
           <Route path="/about">
             <About />
+          </Route>
+          <Route path="/mint">
+            <Mint />
           </Route>
         </Switch>
       </BrowserRouter>
