@@ -1,0 +1,34 @@
+@import "styles/default.scss";
+
+.file-input-container {
+  input {
+    display: none;
+  }
+
+  label {
+    margin: 10px 0;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 350px;
+    height: 250px;
+    color: $placeholder;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    svg {
+      margin-bottom: 10px;
+      fill: $placeholder;
+    }
+
+    p {
+      width: 80%;
+      font-weight: 500;
+    }
+  }
+}

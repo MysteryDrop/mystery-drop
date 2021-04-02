@@ -1,0 +1,28 @@
+@import "styles/default.scss";
+
+.text-input {
+  margin: 10px 0;
+  input {
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: none;
+    background: $input-bg;
+    font-weight: 700;
+    width: auto;
+    color: black;
+  }
+
+  textarea {
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: none;
+    background: $input-bg;
+    font-weight: 700;
+    color: black;
+    resize: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
