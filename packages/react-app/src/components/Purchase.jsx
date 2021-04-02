@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { formatEther, parseEther } from "@ethersproject/units";
-import smallLogo from "../assets/logo-small.svg";
+import smallLogo from "assets/logo-small.svg";
 import "./Purchase.css";
 
 export default function Purchase({ availTokens, yourBalance, tokenAddress, currPrice, tx, writeContracts }) {
   const purchaseToken = () => {
-    const quantity = "" + 1 * 10 ** 18
-    tx( writeContracts.TokenSale.buyToken(tokenAddress, quantity, {value: currPrice}) )
+    const quantity = "" + 1 * 10 ** 18;
+    tx(writeContracts.TokenSale.buyToken(tokenAddress, quantity, { value: currPrice }));
   };
 
   return (

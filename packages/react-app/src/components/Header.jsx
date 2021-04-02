@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import WalletConnect from "./WalletConnect";
-import logoDark from "../assets/mysteryDrop-logo-dark.svg";
+import logoDark from "assets/mysteryDrop-logo-dark.svg";
 
 // displays a page header
 

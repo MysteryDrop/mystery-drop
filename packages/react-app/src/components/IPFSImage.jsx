@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-import defaultDark from "../assets/default-dark.svg";
-import defaultWhite from "../assets/default-white.svg";
+import defaultDark from "assets/default-dark.svg";
+import defaultWhite from "assets/default-white.svg";
 import { useThemeSwitcher } from "react-css-theme-switcher";
 
 export default function IPFSImage({ uri }) {

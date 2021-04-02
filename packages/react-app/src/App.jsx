@@ -18,7 +18,7 @@ import {
   useBalance,
   useExternalContractLoader,
 } from "./hooks";
-import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch, About, Gallery, Purchase } from "./components";
+import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch, About, Gallery, Purchase } from "components";
 import { Mint } from "./pages";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
