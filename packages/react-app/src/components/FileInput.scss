@@ -30,5 +30,25 @@
       width: 80%;
       font-weight: 500;
     }
+
+    &.uploaded-image {
+      border: none;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+
+      img {
+        border-radius: 10px;
+        filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
+      }
+
+      svg {
+        display: none;
+      }
+
+      p {
+        display: none;
+      }
+    }
   }
 }
