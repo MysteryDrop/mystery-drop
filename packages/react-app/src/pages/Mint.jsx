@@ -12,6 +12,27 @@ const MAX_ARTWORKS = 6;
 export default function Mint() {
   const [artworks, setArtworks] = useState([]);
   const [editing, setEditing] = useState(-1);
+  const [bannerImg, setBannerImg] = useState();
+  const [title, setTitle] = useState();
+  const [description, setDescription] = useState();
+  const [dropDate, setDropDate] = useState();
+
+  const submit = () => {
+    console.log(
+      "SUBMITING",
+      JSON.stringify(
+        {
+          bannerImg,
+          title,
+          description,
+          dropDate,
+          artworks,
+        },
+        null,
+        2,
+      ),
+    );
+  };
 
   const renderCard = ({ title, image, description }, index) => (
     <div className="card">
@@ -81,13 +102,23 @@ export default function Mint() {
   return (
     <div className="create-collection">
       <h1>Create Collection</h1>
-      <FileInput label="Preview Image" name="bannerImg" />
-      <TextInput label="Name" placeholder="Eg. Splash" name="title" />
+      <FileInput label="Preview Image" name="bannerImg" onChange={setBannerImg} />
+      <TextInput
+        label="Name"
+        placeholder="Eg. Splash"
+        name="title"
+        onChange={event => {
+          setTitle(event.nativeEvent.target.value);
+        }}
+      />
       <TextInput
         multiline={true}
         label="Description"
         placeholder="Eg. A collection of randomly generated..."
         name="description"
+        onChange={event => {
+          setDescription(event.nativeEvent.target.value);
+        }}
       />
       <div className="artworks">
         <h4>Artworks</h4>
@@ -129,8 +160,15 @@ export default function Mint() {
           </div>
         ) : null}
       </div>
-      <DateTimeInput label="Drop Date" />
-      <button className="submit">Mint Collection</button>
+      <DateTimeInput
+        label="Drop Date"
+        onChange={event => {
+          setDropDate(event.nativeEvent.target.value);
+        }}
+      />
+      <button onClick={submit} className="submit">
+        Mint Collection
+      </button>
     </div>
   );
 }
