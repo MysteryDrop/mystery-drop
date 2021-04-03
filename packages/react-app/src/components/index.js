@@ -22,3 +22,4 @@ export { default as Gallery } from "./Gallery";
 export { default as WalletConnect } from "./WalletConnect";
 export { default as TextInput } from "./TextInput";
 export { default as FileInput } from "./FileInput";
+export { default as DateTimeInput } from "./DateTimeInput";

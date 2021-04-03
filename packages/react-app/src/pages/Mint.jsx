@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FileInput, TextInput } from "components";
+import { FileInput, TextInput, DateTimeInput } from "components";
 import { ReactComponent as EditIcon } from "assets/edit-icon.svg";
 import { ReactComponent as AddIcon } from "assets/add-icon.svg";
 import { ReactComponent as TrashIcon } from "assets/trash-icon.svg";
@@ -129,7 +129,8 @@ export default function Mint() {
           </div>
         ) : null}
       </div>
-      <button>Mint Collection</button>
+      <DateTimeInput label="Drop Date" />
+      <button className="submit">Mint Collection</button>
     </div>
   );
 }

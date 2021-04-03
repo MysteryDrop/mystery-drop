@@ -24,6 +24,14 @@
     }
   }
 
+  .file-input-container {
+    width: 100%;
+
+    label {
+      width: 100%;
+    }
+  }
+
   .artworks {
     width: 100%;
 
@@ -155,5 +163,12 @@
         }
       }
     }
+  }
+
+  .submit {
+    margin-top: 40px;
+    width: 50%;
+    align-self: center;
+    filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
   }
 }

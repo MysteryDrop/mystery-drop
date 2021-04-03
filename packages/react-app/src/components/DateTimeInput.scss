@@ -1,0 +1,18 @@
+@import "styles/default.scss";
+
+.datetime-input-container {
+  margin: 10px 0;
+
+  input {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    background: $input-bg;
+    font-weight: 700;
+    color: black;
+  }
+
+  input[type="datetime-local"]:invalid::-webkit-datetime-edit {
+    color: $placeholder;
+  }
+}
