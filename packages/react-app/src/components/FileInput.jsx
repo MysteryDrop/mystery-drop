@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { ReactComponent as UploadIcon } from "assets/upload-icon.svg";
 import "./FileInput.scss";
 
-export default function FileInput({ label, name }) {
-  const [file, setFile] = useState();
+export default function FileInput({ label, name, onChange, defaultImg }) {
+  const [file, setFile] = useState(defaultImg);
 
   const handleUpload = event => {
     try {
       const img = URL.createObjectURL(event.nativeEvent.target.files[0]);
       setFile(img);
+      onChange(img);
     } catch (err) {
       console.error(err);
     }

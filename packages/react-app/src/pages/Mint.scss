@@ -132,5 +132,28 @@
         }
       }
     }
+
+    .edit-modal {
+      margin-top: 20px;
+      box-sizing: border-box;
+      padding: 40px;
+      background-color: white;
+      border-radius: 10px;
+      filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
+
+      .multi-line {
+        width: 100%;
+      }
+
+      .exit {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
   }
 }
