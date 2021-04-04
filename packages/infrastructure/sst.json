@@ -1,0 +1,6 @@
+{
+  "name": "mystery-drop-infra",
+  "type": "@serverless-stack/resources",
+  "stage": "dev",
+  "region": "us-east-1"
+}

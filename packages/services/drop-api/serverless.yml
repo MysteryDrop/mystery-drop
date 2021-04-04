@@ -1,0 +1,111 @@
+service: mystery-drop-api
+
+# Create an optimized package for our functions 
+package:
+  individually: false
+
+plugins:
+  - serverless-bundle # Package our functions with Webpack
+  - serverless-offline
+  - serverless-dotenv-plugin # Load .env as environment variables
+  - serverless-domain-manager
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ${opt:region, 'us-east-1'}
+  stage: dev
+  iamRoleStatements:
+    -  Effect: "Allow"
+       Action:
+         - s3:*
+       Resource: "*"
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:BatchGetItem
+        - dynamodb:UpdateItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:Query
+      Resource:
+        - !ImportValue '${self:custom.sstApp}-TableArn'
+        - Fn::Join:
+          - ''
+          - - !ImportValue '${self:custom.sstApp}-TableArn'
+            - '/index/*'
+    - Effect: Allow
+      Action:
+        - ses:SendRawEmail
+      Resource: "*"
+  httpApi:
+    cors:
+      allowedOrigins:
+        - http://localhost:3000
+        - https://mysterydrop.app
+        - https://dev.mysterydrop.app
+        - https://test-cors.org
+        - https://www.test-cors.org
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - cache-control
+        - pragma
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+      maxAge: 3000
+      allowCredentials: true
+    # authorizers:
+    #   serviceAuthorizer:
+    #     identitySource: $request.header.Authorization
+    #     issuerUrl: 
+    #       Fn::Join:
+    #       - ''
+    #       - - 'https://cognito-idp.'
+    #         - '${opt:region, self:provider.region}'
+    #         - '.amazonaws.com/'
+    #         - !ImportValue '${self:custom.sstApp}-UserPoolId'
+    #     audience:
+    #       - !ImportValue '${self:custom.sstApp}-UserPoolClientId'
+  environment:
+    DYNAMODB_TABLE: !ImportValue '${self:custom.sstApp}-TableName'
+    CREATOR_DROP_BUCKET_NAME: ${self:custom.bucketName}
+
+custom:
+  # Our stage is based on what is passed in when running serverless
+  # commands. Or falls back to what we have set in the provider section.
+  stage: ${opt:stage, self:provider.stage}
+  # Name of the SST app that's deploying our infrastructure
+  sstApp: ${self:custom.stage}-mystery-drop-infra
+  customDomain:
+    domainName: ${self:custom.stage}.ext-api.mysterydrop.app
+    basePath: app
+    endpointType: regional
+    apiType: http
+    createRoute53Record: true
+  bucketName: !ImportValue '${self:custom.sstApp}-CreatorDropBucketName'
+
+functions:
+  defaultCORS:
+    handler: src/functions/dropHandler.defaultCORS
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: options
+          # cors: true
+  nonce:
+    handler: src/functions/dropHandler.nonce
+    events:
+      - httpApi:
+          path: /v1/sessions
+          method: get
+  login:
+    handler: src/functions/dropHandler.login
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET}
+    events:
+      - httpApi:
+          path: /v1/sessions
+          method: post
