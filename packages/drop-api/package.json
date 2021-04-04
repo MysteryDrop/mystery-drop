@@ -18,7 +18,7 @@
     "@types/aws-lambda": "^8.10.64",
     "@types/jest": "^26.0.14",
     "serverless": "^2.18.0",
-    "serverless-bundle": "3.2.1",
+    "serverless-bundle": "4.2.2",
     "serverless-domain-manager": "^5.1.0",
     "serverless-dotenv-plugin": "^3.0.0",
     "serverless-offline": "^6.8.0"

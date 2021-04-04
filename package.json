@@ -58,6 +58,10 @@
       "packages/*"
     ],
     "nohoist": [
+      "**/eslint",
+      "**/eslint/**",
+      "**/jest",
+      "**/jest/**",
       "**/@graphprotocol/graph-ts",
       "**/@graphprotocol/graph-ts/**",
       "**/hardhat",
