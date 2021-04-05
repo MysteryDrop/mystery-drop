@@ -89,6 +89,10 @@ function App(props) {
   if (DEBUG) console.log("🌎 mainnetProvider", mainnetProvider);
 
   const [injectedProvider, setInjectedProvider] = useState();
+
+  /* Server JWT Auth */
+  const [jwtAuthToken, setJwtAuthToken] = useState(null);
+
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
   const price = useExchangePrice(targetNetwork, mainnetProvider);
 
@@ -328,6 +332,8 @@ function App(props) {
           setProvider={setInjectedProvider}
           web3Modal={web3Modal}
           logoutOfWeb3Modal={web3Modal}
+          jwtAuthToken={jwtAuthToken}
+          setJwtAuthToken={setJwtAuthToken}
         />
 
         <Switch>

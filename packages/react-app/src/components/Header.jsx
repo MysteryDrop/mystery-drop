@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import WalletConnect from "./WalletConnect";
 import logoDark from "assets/mysteryDrop-logo-dark.svg";
+import MysteryDropAuth from "./MysteryDropAuth";
 
 // displays a page header
 
-export default function Header({ loadWeb3Modal, web3Modal, logoutOfWeb3Modal, setProvider }) {
+export default function Header({ loadWeb3Modal, web3Modal, logoutOfWeb3Modal, setProvider, jwtAuthToken, setJwtAuthToken }) {
   const [route, setRoute] = useState(window.location.pathname);
 
   return (
@@ -86,6 +87,8 @@ export default function Header({ loadWeb3Modal, web3Modal, logoutOfWeb3Modal, se
                 logout={logoutOfWeb3Modal}
                 connect={loadWeb3Modal}
                 setProvider={setProvider}
+                jwtAuthToken={jwtAuthToken}
+                setJwtAuthToken={setJwtAuthToken}
               />
             </div>
           </div>
