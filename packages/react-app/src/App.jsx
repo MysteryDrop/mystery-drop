@@ -11,7 +11,6 @@ import { useUserAddress } from "eth-hooks";
 import {
   useExchangePrice,
   useGasPrice,
-  useUserProvider,
   useContractLoader,
   useContractReader,
   useEventListener,
@@ -99,7 +98,8 @@ function App(props) {
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
   const gasPrice = useGasPrice(targetNetwork, "fast");
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
-  const userProvider = useUserProvider(injectedProvider, localProvider);
+  // const userProvider = useUserProvider(injectedProvider, localProvider);
+  const userProvider = injectedProvider;
   const address = useUserAddress(userProvider);
   if (DEBUG) console.log("👩‍💼 selected address:", address);
 
@@ -336,134 +336,74 @@ function App(props) {
           setJwtAuthToken={setJwtAuthToken}
         />
 
-        <Switch>
-          <Route exact path="/">
-            <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              <List
-                dataSource={yourDrops}
-                renderItem={item => {
-                  const id = item.tokenAddress;
-                  console.log({ id });
-                  return (
-                    <List.Item key={id}>
-                      <Purchase
-                        availTokens={item.tokensAvailable}
-                        yourBalance={item.yourBalance}
-                        tokenAddress={item.tokenAddress}
-                        currPrice={item.currentPrice}
-                        tx={tx}
-                        writeContracts={writeContracts}
-                        /* name="YourContract" */
-                        /* signer={userProvider.getSigner()} */
-                        /* provider={localProvider} */
-                        /* address={address} */
-                        /* blockExplorer={blockExplorer} */
-                      />
-                    </List.Item>
-                  );
-                }}
-              ></List>
-            </div>
-          </Route>
-          <Route path="/gallery">
-            <Gallery
-              tokens={yourVaultHoldings}
-              /* address={address} */
-              /* yourLocalBalance={yourLocalBalance} */
-              /* mainnetProvider={mainnetProvider} */
-              /* price={price} */
-            />
-          </Route>
-          <Route path="/debugcontracts">
-            <Contract
-              name="TokenSale"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            <Contract
-              name="AnyERC20"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-          </Route>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/mint">
-            <Mint 
-              provider={userProvider}
-              jwtAuthToken={jwtAuthToken}
-              setJwtAuthToken={setJwtAuthToken}
-            />
-          </Route>
-        </Switch>
+        {injectedProvider ? (
+          <Switch>
+            <Route exact path="/">
+              <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+                <List
+                  dataSource={yourDrops}
+                  renderItem={item => {
+                    const id = item.tokenAddress;
+                    console.log({ id });
+                    return (
+                      <List.Item key={id}>
+                        <Purchase
+                          availTokens={item.tokensAvailable}
+                          yourBalance={item.yourBalance}
+                          tokenAddress={item.tokenAddress}
+                          currPrice={item.currentPrice}
+                          tx={tx}
+                          writeContracts={writeContracts}
+                          /* name="YourContract" */
+                          /* signer={userProvider.getSigner()} */
+                          /* provider={localProvider} */
+                          /* address={address} */
+                          /* blockExplorer={blockExplorer} */
+                        />
+                      </List.Item>
+                    );
+                  }}
+                ></List>
+              </div>
+            </Route>
+            <Route path="/gallery">
+              <Gallery
+                tokens={yourVaultHoldings}
+                /* address={address} */
+                /* yourLocalBalance={yourLocalBalance} */
+                /* mainnetProvider={mainnetProvider} */
+                /* price={price} */
+              />
+            </Route>
+            <Route path="/debugcontracts">
+              <Contract
+                name="TokenSale"
+                signer={userProvider.getSigner()}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+              />
+              <Contract
+                name="AnyERC20"
+                signer={userProvider.getSigner()}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+              />
+            </Route>
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/mint">
+              <Mint provider={userProvider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />
+            </Route>
+          </Switch>
+        ) : (
+          <span>Please connect your wallet</span>
+        )}
       </BrowserRouter>
 
       {/* <ThemeSwitch /> */}
-
-      {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      {DEBUG ? (
-        <>
-          <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10, zIndex: 100 }}>
-            <Account
-              address={address}
-              localProvider={localProvider}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              price={price}
-              web3Modal={web3Modal}
-              loadWeb3Modal={loadWeb3Modal}
-              logoutOfWeb3Modal={logoutOfWeb3Modal}
-              blockExplorer={blockExplorer}
-            />
-            {faucetHint}
-          </div>
-          <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-            <Row align="middle" gutter={[4, 4]}>
-              <Col span={8}>
-                <Ramp price={price} address={address} networks={NETWORKS} />
-              </Col>
-
-              <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-                <GasGauge gasPrice={gasPrice} />
-              </Col>
-              <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-                <Button
-                  onClick={() => {
-                    window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-                  }}
-                  size="large"
-                  shape="round"
-                >
-                  <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                    💬
-                  </span>
-                  Support
-                </Button>
-              </Col>
-            </Row>
-
-            <Row align="middle" gutter={[4, 4]}>
-              <Col span={24}>
-                {
-                  /*  if the local provider has a signer, let's show the faucet:  */
-                  faucetAvailable ? (
-                    <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
-                  ) : (
-                    ""
-                  )
-                }
-              </Col>
-            </Row>
-          </div>
-        </>
-      ) : null}
     </div>
   );
 }
