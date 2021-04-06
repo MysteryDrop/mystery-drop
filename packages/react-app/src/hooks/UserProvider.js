@@ -23,6 +23,7 @@ import { INFURA_ID } from "../constants";
 
 const useUserProvider = (injectedProvider, localProvider) =>
 useMemo(() => {
+  console.log("🔎 Checking for update to provider")
   if (injectedProvider) {
     console.log("🦊 Using injected provider");
     return injectedProvider;

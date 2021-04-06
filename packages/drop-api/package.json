@@ -1,12 +1,14 @@
 {
-  "name": "you-new-web",
+  "name": "mystery-drop-api",
   "version": "0.1.0",
   "description": "A TypeScript starter for Serverless Framework",
   "main": "handler.js",
+  "private": true,
   "scripts": {
-    "lint": "eslint src/**/*.ts",
+    "lint": "npx eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
-    "test": "serverless-bundle test"
+    "test": "serverless-bundle test",
+    "deploy": "npx serverless deploy --stage dev"
   },
   "author": "",
   "license": "MIT",
@@ -17,16 +19,22 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.64",
     "@types/jest": "^26.0.14",
+    "eslint": "^7.5.0",
     "serverless": "^2.18.0",
-    "serverless-bundle": "4.2.2",
+    "serverless-bundle": "3.2.1",
     "serverless-domain-manager": "^5.1.0",
     "serverless-dotenv-plugin": "^3.0.0",
     "serverless-offline": "^6.8.0"
   },
   "dependencies": {
     "@serverless-seoul/dynamorm": "^2.11.0",
-    "ethereumjs-util": "^7.0.10",
     "jsonwebtoken": "^8.5.1",
+    "ethers": "^5.0.17",
     "mailparser": "^2.3.4"
+  },
+  "workspaces": {
+    "nohoist": [
+      "**"
+    ]
   }
 }

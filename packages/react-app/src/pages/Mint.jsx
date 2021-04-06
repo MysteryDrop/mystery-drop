@@ -6,10 +6,14 @@ import { ReactComponent as TrashIcon } from "assets/trash-icon.svg";
 import { ReactComponent as ExitIcon } from "assets/exit-icon.svg";
 import noImage from "assets/no-image.svg";
 import "./Mint.scss";
+import MysteryDropAuth from "components/MysteryDropAuth";
+import { logout } from "util/auth";
 
 const MAX_ARTWORKS = 6;
 
-export default function Mint() {
+export default function Mint(
+  {provider, jwtAuthToken, setJwtAuthToken}
+) {
   const [artworks, setArtworks] = useState([]);
   const [editing, setEditing] = useState(-1);
   const [bannerImg, setBannerImg] = useState();
@@ -99,7 +103,8 @@ export default function Mint() {
     ]);
   };
 
-  return (
+  return jwtAuthToken? (
+    // add auth here
     <div className="create-collection">
       <h1>Create Collection</h1>
       <FileInput label="Preview Image" name="bannerImg" onChange={setBannerImg} />
@@ -169,6 +174,15 @@ export default function Mint() {
       <button onClick={submit} className="submit">
         Mint Collection
       </button>
+      <button onClick={() =>logout({setJwtAuthToken})} className="button is-primary">
+        Logout
+      </button>
     </div>
+  ) : (
+    <MysteryDropAuth 
+      provider={provider}
+      jwtAuthToken={jwtAuthToken}
+      setJwtAuthToken={setJwtAuthToken}
+    />
   );
 }

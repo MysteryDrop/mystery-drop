@@ -2,7 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import apiResponses from 'src/requests/apiResponses'
 import { sign } from 'jsonwebtoken'
 import { randomBytes } from 'crypto'
-import * as ethUtil from 'ethereumjs-util'
+import { utils } from 'ethers'
 
 import { MysteryDrop } from '../models/mysteryDropFunctions'
 
@@ -16,19 +16,8 @@ const getNonce = async () => {
 const recoverSignature = (nonce, signature) => {
   const msg = `I am signing my one-time nonce: ${nonce}`
 
-  // We now are in possession of msg, publicAddress and signature. We
-  // can perform an elliptic curve signature verification with ecrecover
-  const msgBuffer = ethUtil.toBuffer(msg)
-  const msgHash = ethUtil.hashPersonalMessage(msgBuffer)
-  const signatureParams = ethUtil.fromRpcSig(signature)
-  const publicKey = ethUtil.ecrecover(
-    msgHash,
-    signatureParams.v,
-    signatureParams.r,
-    signatureParams.s
-  )
-  const addressBuffer = ethUtil.publicToAddress(publicKey)
-  const address = ethUtil.bufferToHex(addressBuffer)
+  const address = utils.verifyMessage(msg, signature)
+
   return address
 }
 
@@ -50,6 +39,7 @@ export async function nonce(
   let nonce
 
   try {
+    // TODO this could probably be simplified to just call update and not check if one exists yet
     const result = await MysteryDrop.primaryKey.get(publicAddress)
 
     if (!result) {
@@ -62,15 +52,11 @@ export async function nonce(
 
       await user.save()
     } else {
-      nonce = result.Nonce
+      nonce = await getNonce()
+      await MysteryDrop.primaryKey.update(publicAddress, {
+        Nonce: ['PUT', nonce],
+      })
     }
-
-    // Update nonce for next time
-
-    const nextNonce = await getNonce()
-    await MysteryDrop.primaryKey.update(publicAddress, {
-      Nonce: ['PUT', nextNonce],
-    })
 
     const response = {
       // Success response

@@ -394,7 +394,11 @@ function App(props) {
             <About />
           </Route>
           <Route path="/mint">
-            <Mint />
+            <Mint 
+              provider={userProvider}
+              jwtAuthToken={jwtAuthToken}
+              setJwtAuthToken={setJwtAuthToken}
+            />
           </Route>
         </Switch>
       </BrowserRouter>
