@@ -19,7 +19,7 @@ export default function TextInput({ onChange, name, label, error, placeholder, m
           name={name}
           placeholder={placeholder}
           onChange={onChange}
-          value={defaultText}
+          value={defaultText || ""}
         />
       ) : (
         <input
@@ -28,7 +28,7 @@ export default function TextInput({ onChange, name, label, error, placeholder, m
           type="text"
           placeholder={placeholder}
           onChange={onChange}
-          value={defaultText}
+          value={defaultText || ""}
         />
       )}
       <p className="error-message">{error}</p>

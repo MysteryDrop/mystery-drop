@@ -80,9 +80,29 @@ export default function Mint() {
       setDateError("Drop Date Must Be In The Future");
       errors = true;
     }
+    artworks.forEach((artwork, index) => {
+      let artErrors = {};
+      if (!artwork.image) {
+        artErrors = { ...artErrors, imageError: "Image Required" };
+      }
+      if (!artwork.title) {
+        artErrors = { ...artErrors, titleError: "Title Required" };
+      } else if (artwork.title.length > MAX_TITLE_LENGTH) {
+        artErrors = { ...artErrors, titleError: `Must Be Under ${MAX_TITLE_LENGTH} Characters` };
+      }
+      if (!artwork.description) {
+        artErrors = { ...artErrors, descError: "Description Required" };
+      } else if (artwork.description.length > MAX_DESCRIPTION_LENGTH) {
+        artErrors = { ...artErrors, descError: `Must Be Under ${MAX_DESCRIPTION_LENGTH} Characters` };
+      }
+      setArtworkAttribute(index, artErrors);
+      errors = Object.keys(artErrors).length !== 0;
+    });
+
     return errors;
   };
 
+  // Reset Errors
   useEffect(() => {
     if (bannerImg) {
       setBannerError(null);
@@ -111,11 +131,28 @@ export default function Mint() {
     if (artworks.length > 0) {
       setNoCardError(null);
     }
+
+    // Remove Each artwork error on change
+    artworks.forEach((artwork, index) => {
+      let toRemove = {};
+      if (artwork.image && artwork.imageError !== null) {
+        toRemove = { ...toRemove, imageError: null };
+      }
+      if (artwork.title && artwork.title.length < MAX_TITLE_LENGTH && artwork.titleError !== null) {
+        toRemove = { ...toRemove, titleError: null };
+      }
+      if (artwork.description && artwork.description.length < MAX_DESCRIPTION_LENGTH && artwork.descError !== null) {
+        toRemove = { ...toRemove, descError: null };
+      }
+      if (Object.keys(toRemove).length !== 0) {
+        setArtworkAttribute(index, toRemove);
+      }
+    });
   }, [artworks]);
 
-  const renderCard = ({ title, image, description }, index) => (
+  const renderCard = ({ title, titleError, image, imageError, description, descError }, index) => (
     <div className="card" key={index}>
-      <div className="art-card fade-in">
+      <div className={`art-card fade-in ${titleError || imageError || descError ? "error" : null}`}>
         <img alt="preview" src={image || noImage} />
         <div
           className={editing === index ? "action-icon editing" : "action-icon"}
@@ -143,38 +180,25 @@ export default function Mint() {
     setEditing(artworks.length);
   };
 
-  const setArtworkImage = image => {
+  const setArtworkAttribute = (index, changes) => {
     setArtworks([
-      ...artworks.slice(0, editing),
+      ...artworks.slice(0, index),
       {
-        ...artworks[editing],
-        image,
+        ...artworks[index],
+        ...changes,
       },
-      ...artworks.slice(editing + 1),
+      ...artworks.slice(index + 1),
     ]);
   };
 
-  const setArtworkName = event => {
-    const title = event.nativeEvent.target.value;
+  const setArtworkDescError = (index, error) => {
     setArtworks([
-      ...artworks.slice(0, editing),
+      ...artworks.slice(0, index),
       {
-        ...artworks[editing],
-        title,
+        ...artworks[index],
+        descError: error,
       },
-      ...artworks.slice(editing + 1),
-    ]);
-  };
-
-  const setArtworkDesc = event => {
-    const description = event.nativeEvent.target.value;
-    setArtworks([
-      ...artworks.slice(0, editing),
-      {
-        ...artworks[editing],
-        description,
-      },
-      ...artworks.slice(editing + 1),
+      ...artworks.slice(index + 1),
     ]);
   };
 
@@ -241,6 +265,7 @@ export default function Mint() {
         onChange={event => {
           setTitle(event.nativeEvent.target.value);
         }}
+        defaultText={title}
       />
       <TextInput
         multiline={true}
@@ -251,6 +276,7 @@ export default function Mint() {
         onChange={event => {
           setDescription(event.nativeEvent.target.value);
         }}
+        defaultText={description}
       />
       <div className="artworks">
         <h4>Artworks</h4>
@@ -272,23 +298,38 @@ export default function Mint() {
             <ExitIcon className="exit" onClick={() => setEditing(-1)} />
             <FileInput
               label="Preview Image"
+              error={artworks[editing]?.imageError}
               name={`artwork-${editing}`}
-              onChange={setArtworkImage}
+              onChange={image => {
+                setArtworkAttribute(editing, {
+                  image,
+                });
+              }}
               defaultImg={artworks[editing]?.image}
             />
             <TextInput
               label="Name"
+              error={artworks[editing]?.titleError}
               placeholder="Eg. Splash"
               name={`title-${editing}`}
-              onChange={setArtworkName}
+              onChange={event => {
+                setArtworkAttribute(editing, {
+                  title: event.nativeEvent.target.value,
+                });
+              }}
               defaultText={artworks[editing]?.title}
             />
             <TextInput
               label="Description"
+              error={artworks[editing]?.descError}
               placeholder="Eg. 1 of 3 randomly generated artworks in..."
               multiline={true}
               name={`description-${editing}`}
-              onChange={setArtworkDesc}
+              onChange={event => {
+                setArtworkAttribute(editing, {
+                  description: event.nativeEvent.target.value,
+                });
+              }}
               defaultText={artworks[editing]?.description}
             />
           </div>

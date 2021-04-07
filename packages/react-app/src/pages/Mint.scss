@@ -65,6 +65,10 @@
         background: white;
         filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
 
+        &.error {
+          border: 2px solid $red;
+        }
+
         img {
           flex: 3;
           object-fit: cover;
