@@ -1,11 +1,18 @@
 import React from "react";
 import "./DateTimeInput.scss";
 
-export default function DateTimeInput({ label, name, onChange, required = true }) {
+export default function DateTimeInput({ label, name, error, onChange, required = true }) {
   return (
     <div className="datetime-input-container">
       <h4>{label}</h4>
-      <input name={name} type="datetime-local" onChange={onChange} required={required} />
+      <input
+        className={error ? "error" : null}
+        name={name}
+        type="datetime-local"
+        onChange={onChange}
+        required={required}
+      />
+      <p className="error-message">{error}</p>
     </div>
   );
 }

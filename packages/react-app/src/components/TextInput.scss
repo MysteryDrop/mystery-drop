@@ -10,6 +10,10 @@
     font-weight: 700;
     width: auto;
     color: black;
+
+    &.error {
+      background-color: $red-bg;
+    }
   }
 
   textarea {
@@ -24,5 +28,17 @@
     &::-webkit-scrollbar {
       display: none;
     }
+
+    &.error {
+      background-color: $red-bg;
+    }
+  }
+
+  .error-message {
+    color: $red;
+    font-size: 12px;
+    font-weight: 400;
+    text-align: left;
+    margin: 5px;
   }
 }

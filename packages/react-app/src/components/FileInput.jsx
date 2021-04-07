@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ReactComponent as UploadIcon } from "assets/upload-icon.svg";
 import "./FileInput.scss";
 
-export default function FileInput({ label, name, onChange, defaultImg }) {
+export default function FileInput({ label, error, name, onChange, defaultImg }) {
   const [file, setFile] = useState(defaultImg);
 
   const handleUpload = event => {
@@ -18,7 +18,7 @@ export default function FileInput({ label, name, onChange, defaultImg }) {
   return (
     <div className="file-input-container">
       <h4>{label}</h4>
-      <label className={file ? "uploaded-image" : null}>
+      <label className={file ? "uploaded-image" : error ? "error" : null}>
         <div>
           <img alt="" src={file} />
         </div>
@@ -26,6 +26,7 @@ export default function FileInput({ label, name, onChange, defaultImg }) {
         <p>PNG, GIF, WEBP or MP4</p>
         <input onChange={handleUpload} name={name} type="file" accept=".png,.gif,.webp,.mp4" />
       </label>
+      <p className="error-message">{error}</p>
     </div>
   );
 }
