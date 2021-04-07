@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import apiResponses from 'src/requests/apiResponses'
-import { sign } from 'jsonwebtoken'
+import { sign, verify } from 'jsonwebtoken'
 import { randomBytes } from 'crypto'
 import { utils } from 'ethers'
 
@@ -132,4 +132,16 @@ export function defaultCORS(event: APIGatewayEvent): APIGatewayProxyResult {
     body: JSON.stringify({}),
   }
   return response
+}
+
+
+/**
+ * GET /helloAuth
+ * 
+ * Returns a message given a valid auth header
+ */
+export async function helloAuth(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
+  console.log({event})
+  const user = event.requestContext.authorizer.lambda.user
+  return apiResponses._200({ message: `Hello ${user} you are authenticated`})
 }

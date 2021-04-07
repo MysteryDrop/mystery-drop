@@ -1,6 +1,6 @@
 import { env } from '../config'
 
-export function apiRequest(path, method = 'GET', data, accessToken) {
+export function apiRequest({path, method = 'GET', data, accessToken}) {
   return fetch(`${env.baseURL}/${path}`, {
     method,
     headers: {

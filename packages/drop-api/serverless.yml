@@ -57,6 +57,10 @@ provider:
         - OPTIONS
       maxAge: 3000
       allowCredentials: true
+    authorizers:
+      customAuthorizer:
+        type: request
+        functionName: authorize
     # authorizers:
     #   serviceAuthorizer:
     #     identitySource: $request.header.Authorization
@@ -109,3 +113,17 @@ functions:
       - httpApi:
           path: /v1/sessions
           method: post
+  helloAuth:
+    handler: src/functions/dropHandler.helloAuth
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET}
+    events:
+      - httpApi:
+          path: /v1/helloAuth
+          method: get
+          authorizer:
+            name: customAuthorizer
+  authorize:
+    handler: src/functions/authorize.handler
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET}

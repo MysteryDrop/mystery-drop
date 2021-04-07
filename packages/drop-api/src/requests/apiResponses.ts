@@ -8,6 +8,8 @@ const apiResponses = {
             'Access-Control-Allow-Headers':'Content-Type,X-Amz-Date,X-Amz-Security-Token,Authorization,X-Api-Key,X-Requested-With,Accept,Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Allow-Headers',
             'Content-Type': 'application/json',
             'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+                  /* Required for cookies, authorization headers with HTTPS */
+            'Access-Control-Allow-Credentials': true,
             // 'Access-Control-Allow-Credentials' : true,
         }
       }

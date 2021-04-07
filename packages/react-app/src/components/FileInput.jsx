@@ -5,6 +5,7 @@ import "./FileInput.scss";
 export default function FileInput({ label, name, onChange, defaultImg }) {
   const [file, setFile] = useState(defaultImg);
 
+  // add authenticated upload to s3 via lambda here
   const handleUpload = event => {
     try {
       const img = URL.createObjectURL(event.nativeEvent.target.files[0]);
