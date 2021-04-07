@@ -3,7 +3,7 @@
 .create-collection {
   margin: auto;
   width: $medium;
-  max-width: 100%;
+  max-width: 90%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -34,6 +34,7 @@
 
   .artworks {
     width: 100%;
+    position: relative;
 
     .artwork-card-container {
       width: 100%;
@@ -63,6 +64,10 @@
         flex-direction: column;
         background: white;
         filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
+
+        &.error {
+          border: 2px solid $red;
+        }
 
         img {
           flex: 3;
@@ -127,6 +132,10 @@
         align-items: center;
         justify-content: center;
 
+        &.error {
+          background-color: $red-bg;
+        }
+
         &:hover {
           cursor: pointer;
         }
@@ -139,27 +148,59 @@
           color: $placeholder;
         }
       }
+
+      .error-message {
+        color: $red;
+        font-size: 12px;
+        font-weight: 400;
+        text-align: left;
+        margin: 5px;
+      }
     }
 
-    .edit-modal {
-      margin-top: 20px;
-      box-sizing: border-box;
-      padding: 40px;
-      background-color: white;
-      border-radius: 10px;
+    .modal-wrapper {
+      position: absolute;
+      z-index: 10;
+      width: 100%;
+      padding-bottom: 20px;
+      overflow: hidden;
+      max-height: 100vh;
       filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
+      transition: ease-in-out 100ms max-height;
 
-      .multi-line {
-        width: 100%;
+      &.collapsed {
+        max-height: 0px;
+        padding: 0px;
       }
 
-      .exit {
+      .modal-indicator {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 0;
+        fill: red;
+        transform: translateX(-50%);
+        margin-left: (-100%/3);
+      }
 
-        &:hover {
-          cursor: pointer;
+      .edit-modal {
+        position: relative;
+        padding: 40px;
+        margin-top: 20px;
+        box-sizing: border-box;
+        background-color: white;
+        border-radius: 10px;
+
+        .multi-line {
+          width: 100%;
+        }
+
+        .exit {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+
+          &:hover {
+            cursor: pointer;
+          }
         }
       }
     }
@@ -170,5 +211,23 @@
     width: 50%;
     align-self: center;
     filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .create-collection {
+    .artworks {
+      .artwork-card-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .single-line {
+      width: 100%;
+    }
+
+    .submit {
+      width: 100%;
+    }
   }
 }

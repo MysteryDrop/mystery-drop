@@ -17,6 +17,10 @@
     height: 250px;
     color: $placeholder;
 
+    &.error {
+      border-color: $red;
+    }
+
     &:hover {
       cursor: pointer;
     }
@@ -50,5 +54,12 @@
         display: none;
       }
     }
+  }
+  .error-message {
+    color: $red;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 400;
+    margin-left: 5px;
   }
 }
