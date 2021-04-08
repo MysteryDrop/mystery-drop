@@ -29,9 +29,7 @@ export const login = async ({ provider }) => {
   console.log({loginResult})
 
   const helloResult = await apiRequest({path: 'v1/helloAuth', method: 'GET', accessToken: loginResult.token})
-  const testResult = await apiRequest({path: 'v1/jwttest', method: 'GET', accessToken: loginResult.token})
   console.log({helloResult})
-  console.log({testResult})
   return loginResult.token;
 };
 

@@ -1,24 +1,69 @@
 import { DynamoDB } from "aws-sdk"
-import {
-  Decorator,
-  Query,
-  Table,
-} from "@serverless-seoul/dynamorm"
+import { randomBytes } from 'crypto'
 
 const client = new DynamoDB()
 const documentClient = new DynamoDB.DocumentClient({ service: client })
 
-@Decorator.Table({ name: process.env.DYNAMODB_TABLE, connection: { documentClient, client}})
-export class MysteryDrop extends Table {
-  @Decorator.HashPrimaryKey("PublicAddress")
-  public static readonly primaryKey: Query.HashPrimaryKey<MysteryDrop, string>;
-
-  @Decorator.Attribute({ name: "PublicAddress" })
-  public PublicAddress: string;
-
-  @Decorator.Attribute({ name: "Nonce" })
-  public Nonce: string;
-
-  @Decorator.Attribute({ name: "CreatedAt" })
-  public CreatedAt: string;
+const generateNonce = async () => {
+  const buffer = await randomBytes(16)
+  return buffer.toString('hex')
 }
+
+
+const tableName = process.env.DYNAMODB_TABLE
+
+// Merchant Profiles
+interface CreateProfileParams {
+  publicAddress: string
+}
+
+export const createProfile = async (params: CreateProfileParams) => {
+  const queryParams: DynamoDB.DocumentClient.PutItemInput = {
+    TableName: tableName,
+    Item: {
+      PK: `USER#${params.publicAddress}`,
+      SK: `#PROFILE#${params.publicAddress}`,
+      CreatedAt: new Date().toISOString(),
+      Nonce: await generateNonce()
+    },
+  }
+
+  return documentClient.put(queryParams).promise().then((data) => data)
+}
+
+export const getNonce = (params: { publicAddress: string }) => {
+  const queryParams: DynamoDB.DocumentClient.GetItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `USER#${params.publicAddress}`,
+      SK: `#PROFILE#${params.publicAddress}`,
+    },
+    ProjectionExpression: 'Nonce',
+  }
+  console.log({queryParams})
+  return documentClient.get(queryParams).promise().then((data) => data.Item?.Nonce)
+}
+
+export const updateNonce = async (params: { publicAddress: string }) => {
+  const newNonce = await generateNonce()
+  const queryParams: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `USER#${params.publicAddress}`,
+      SK: `#PROFILE#${params.publicAddress}`,
+    },
+    UpdateExpression: 'set Nonce = :n',
+    ExpressionAttributeValues: {
+      ':n': newNonce
+    },
+    ReturnValues:"UPDATED_NEW"
+  }
+  console.log({queryParams})
+  return documentClient.update(queryParams).promise().then((data) => data.Attributes.Nonce)
+}
+
+// Create drop
+
+// Get drop
+
+// Update drop

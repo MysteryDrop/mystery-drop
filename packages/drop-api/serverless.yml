@@ -98,7 +98,6 @@ functions:
       - httpApi:
           path: /{proxy+}
           method: options
-          # cors: true
   nonce:
     handler: src/functions/dropHandler.nonce
     events:
@@ -127,3 +126,49 @@ functions:
     handler: src/functions/authorize.handler
     environment:
       JWT_SECRET: ${env:JWT_SECRET}
+  httpInitiateUpload:
+    handler: src/functions/dropHandler.initiateUpload
+    environment:
+      BUCKET_NAME: ${self:custom.bucketName}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+        Resource:
+          Fn::Join: ['', ['arn:aws:s3:::', "${self:custom.bucketName}", '/*'] ]
+    events:
+      - httpApi:
+          path: /v1/initiateUpload
+          method: post
+          authorizer:
+            name: customAuthorizer
+  s3ProcessUploadedPhoto:
+    handler: src/functions/dropHandler.s3ProcessUploadedPhoto
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: 
+          - !ImportValue '${self:custom.sstApp}-TableArn'
+          - Fn::Join:
+            - ''
+            - - !ImportValue '${self:custom.sstApp}-TableArn'
+              - '/index/*'
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+          - s3:HeadObject
+        Resource:
+          Fn::Join: ['', ['arn:aws:s3:::', "${self:custom.bucketName}", '/*'] ]
+    events:
+      - s3:
+        bucket: 
+          Fn::Join: ['', ['arn:aws:s3:::', "${self:custom.bucketName}", '/*'] ]
+        event: s3:ObjectCreatedj:*
+        rules:
+          - prefix: uploads/
+        existing: true

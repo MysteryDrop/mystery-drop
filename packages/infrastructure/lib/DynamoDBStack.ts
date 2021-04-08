@@ -6,12 +6,17 @@ export default class DynamoDBStack extends sst.Stack {
   constructor(scope: sst.App, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // const app = this.node.root;
-
     const table = new dynamodb.Table(this, "Table", {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST, // Use on-demand billing mode
-      partitionKey: { name: "PublicAddress", type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: "PK", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "SK", type: dynamodb.AttributeType.STRING },
     });
+
+    table.addGlobalSecondaryIndex({
+      indexName: 'SK_GSI',
+      partitionKey: { name: "SK", type: dynamodb.AttributeType.STRING},
+      projectionType: dynamodb.ProjectionType.ALL
+    })
 
     // Output values
     new CfnOutput(this, "TableName", {

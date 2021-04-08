@@ -1,17 +1,17 @@
-import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { APIGatewayEvent, APIGatewayProxyResult, S3Event } from 'aws-lambda'
 import apiResponses from 'src/requests/apiResponses'
 import { sign, verify } from 'jsonwebtoken'
 import { randomBytes } from 'crypto'
 import { utils } from 'ethers'
+import { S3Client, GetObjectCommand, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { uuid } from 'uuidv4';
+import * as mime from 'mime-types'
 
-import { MysteryDrop } from '../models/mysteryDropFunctions'
+
+import { createProfile, getNonce, updateNonce } from '../models/mysteryDropFunctions'
 
 const JWT_EXPIRATION_TIME = '5m'
-
-const getNonce = async () => {
-  const buffer = await randomBytes(16)
-  return buffer.toString('hex')
-}
 
 const recoverSignature = (nonce, signature) => {
   const msg = `I am signing my one-time nonce: ${nonce}`
@@ -37,50 +37,20 @@ export async function nonce(
 
   const publicAddress = parameters['PublicAddress']
   let nonce
+  // const nonce = 'test'
 
   try {
-    // TODO this could probably be simplified to just call update and not check if one exists yet
-    const result = await MysteryDrop.primaryKey.get(publicAddress)
+    nonce = await getNonce({publicAddress})
+    console.log({nonce})
 
-    if (!result) {
-      const user = new MysteryDrop()
-
-      user.PublicAddress = publicAddress
-
-      nonce = await getNonce()
-      user.Nonce = nonce
-
-      await user.save()
-    } else {
-      nonce = await getNonce()
-      await MysteryDrop.primaryKey.update(publicAddress, {
-        Nonce: ['PUT', nonce],
-      })
+    if (!nonce) {
+      await createProfile({publicAddress})
     }
 
-    const response = {
-      // Success response
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        nonce,
-      }),
-    }
-    return response
+    nonce = await updateNonce({publicAddress})
+    return apiResponses._200({nonce})
   } catch (e) {
-    const response = {
-      // Error response
-      statusCode: 401,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        error: e.message,
-      }),
-    }
-    return response
+    return apiResponses._400({error: e.message})
   }
 }
 
@@ -99,10 +69,12 @@ export async function login(
 ): Promise<APIGatewayProxyResult> {
   try {
     const { publicAddress, signature } = JSON.parse(event.body)
-    const result = await MysteryDrop.primaryKey.get(publicAddress)
+    const nonce = await getNonce({publicAddress})
+    // Update nonce so signature can't be replayed
+    await updateNonce({publicAddress})
 
-    const recoveredAddress = recoverSignature(result.Nonce, signature)
-    if (!result) return apiResponses._400({ error: 'user not found' })
+    if (!nonce) return apiResponses._400({ error: 'user not found' })
+    const recoveredAddress = recoverSignature(nonce, signature)
 
     if (recoveredAddress.toLowerCase() === publicAddress.toLowerCase()) {
       const token = sign({ publicAddress }, process.env.JWT_SECRET, {
@@ -139,9 +111,96 @@ export function defaultCORS(event: APIGatewayEvent): APIGatewayProxyResult {
  * GET /helloAuth
  * 
  * Returns a message given a valid auth header
+ * @method helloAuth
  */
 export async function helloAuth(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
   console.log({event})
   const user = event.requestContext.authorizer.lambda.user
   return apiResponses._200({ message: `Hello ${user} you are authenticated`})
 }
+
+/**
+ * POST /initiateUpload
+ * 
+ *
+ * Returns a nonce given a public address
+ * @method initiateUpload
+ * @param {String} event.body.contentType
+ * @param {String} event.body.title
+ * @param {String} event.body.description
+ * @throws Returns 401 if the user is not found
+ * @returns {Object} Pre-signed URL for the user to upload their image
+ */
+export async function initiateUpload(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
+  console.log({event})
+  const user = event.requestContext.authorizer.lambda.user
+  const body = JSON.parse(event.body || '{}');
+
+  const contentMetadata = {
+    contentType: body.contentType,
+    title: body.title,
+    description: body.description
+  }
+
+  // todo make this work for mystery drop fields
+  const dropId = uuid()
+  const photoId = uuid()
+
+  const client = new S3Client({ region: process.env.AWS_REGION });
+  const command = new PutObjectCommand(
+    {
+      Bucket: process.env.BUCKET_NAME,
+      Key: `uploads/drop_${dropId}/${photoId}.${mime.extension(contentMetadata.contentType)!}` ,
+      ContentType: contentMetadata.contentType,
+      Metadata: {
+        ...(contentMetadata),
+        photoId,
+        dropId,
+      }
+    }
+  );
+  const url = await getSignedUrl(client, command, { expiresIn: 3600 });
+
+  const result= {
+    dropId,
+    user,
+    photoId,
+    url,
+  };
+
+  return apiResponses._200({ result })
+}
+
+export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
+  const s3Record = event.Records[0].s3;
+
+  const client = new S3Client({ region: process.env.AWS_REGION });
+  // First fetch metadata from S3
+  const headObjectCommand = new HeadObjectCommand({
+    Bucket: s3Record.bucket.name,
+    Key: s3Record.object.key
+  })
+  const s3Object = await client.send(headObjectCommand)
+  if (!s3Object.$metadata) {
+    // Shouldn't get here
+    const errorMessage = 'Cannot process content as no metadata is set for it';
+    console.error(errorMessage, { s3Object, event });
+    throw new Error(errorMessage);
+  }
+  // S3 metadata field names are converted to lowercase, so need to map them out carefully
+  const contentDetails = {
+    dropId: s3Object.Metadata.dropId,
+    user: s3Object.Metadata.user,
+    description: s3Object.Metadata.description,
+    title: s3Object.Metadata.title,
+    id: s3Object.Metadata.photoid,
+    contentType: s3Object.Metadata.contenttype,
+    key: s3Record.object.key,
+  };
+  // Now write to DDB - todo process multiple image uploads in the same drop
+  // const result = await MysteryDrop.primaryKey.get(contentDetails.user)
+  // await savePhoto(photoDetails);
+
+}
+
+// todo get presigned fetch URLs for rendering on artist dashboard & minting
