@@ -3,15 +3,30 @@ import apiResponses from 'src/requests/apiResponses'
 import { sign, verify } from 'jsonwebtoken'
 import { randomBytes } from 'crypto'
 import { utils } from 'ethers'
-import { S3Client, GetObjectCommand, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { uuid } from 'uuidv4';
+import {
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand,
+  HeadObjectCommand,
+} from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { uuid } from 'uuidv4'
 import * as mime from 'mime-types'
 
-
-import { createProfile, getNonce, updateNonce } from '../models/mysteryDropFunctions'
+import {
+  addContentToDrop,
+  AddContentToDropParams,
+  createDrop,
+  CreateDropParams,
+  createProfile,
+  getNonce,
+  updateNonce,
+} from '../models/mysteryDropFunctions'
 
 const JWT_EXPIRATION_TIME = '5m'
+const MAX_ITEMS_IN_COLLECTION = 6
+
+const client = new S3Client({ region: process.env.AWS_REGION })
 
 const recoverSignature = (nonce, signature) => {
   const msg = `I am signing my one-time nonce: ${nonce}`
@@ -35,22 +50,24 @@ export async function nonce(
 ): Promise<APIGatewayProxyResult> {
   const parameters = event.queryStringParameters
 
+  // todo input validation
+
   const publicAddress = parameters['PublicAddress']
   let nonce
   // const nonce = 'test'
 
   try {
-    nonce = await getNonce({publicAddress})
-    console.log({nonce})
+    nonce = await getNonce({ publicAddress })
+    console.log({ nonce })
 
     if (!nonce) {
-      await createProfile({publicAddress})
+      await createProfile({ publicAddress })
     }
 
-    nonce = await updateNonce({publicAddress})
-    return apiResponses._200({nonce})
+    nonce = await updateNonce({ publicAddress })
+    return apiResponses._200({ nonce })
   } catch (e) {
-    return apiResponses._400({error: e.message})
+    return apiResponses._400({ error: e.message })
   }
 }
 
@@ -68,10 +85,11 @@ export async function login(
   event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
   try {
+    // todo input validation
     const { publicAddress, signature } = JSON.parse(event.body)
-    const nonce = await getNonce({publicAddress})
+    const nonce = await getNonce({ publicAddress })
     // Update nonce so signature can't be replayed
-    await updateNonce({publicAddress})
+    await updateNonce({ publicAddress })
 
     if (!nonce) return apiResponses._400({ error: 'user not found' })
     const recoveredAddress = recoverSignature(nonce, signature)
@@ -106,22 +124,51 @@ export function defaultCORS(event: APIGatewayEvent): APIGatewayProxyResult {
   return response
 }
 
-
 /**
  * GET /helloAuth
- * 
+ *
  * Returns a message given a valid auth header
  * @method helloAuth
  */
-export async function helloAuth(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
-  console.log({event})
+export async function helloAuth(
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  console.log({ event })
   const user = event.requestContext.authorizer.lambda.user
-  return apiResponses._200({ message: `Hello ${user} you are authenticated`})
+  return apiResponses._200({ message: `Hello ${user} you are authenticated` })
+}
+
+interface ContentMetadata {
+  contentId: string // this has to come from the client so they know which url to use for which piece
+  contentType: string
+  contentTitle: string
+  contentDescription: string
+}
+
+interface DropMetadata {
+  contentType: string
+  dropTitle: string
+  dropDescription: string
+  content: ContentMetadata[]
+  numberOfItems: number
+}
+
+interface InitiateUploadContentResponse {
+  contentId: string
+  url: string
+}
+
+interface InitiateUploadResponse {
+  dropId: string
+  user: string
+  dropPreviewContentId: string
+  dropPreviewUrl: string
+  content: InitiateUploadContentResponse[]
 }
 
 /**
  * POST /initiateUpload
- * 
+ *
  *
  * Returns a nonce given a public address
  * @method initiateUpload
@@ -131,76 +178,142 @@ export async function helloAuth(event: APIGatewayEvent): Promise<APIGatewayProxy
  * @throws Returns 401 if the user is not found
  * @returns {Object} Pre-signed URL for the user to upload their image
  */
-export async function initiateUpload(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
-  console.log({event})
+export async function initiateUpload(
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  console.log({ event })
   const user = event.requestContext.authorizer.lambda.user
-  const body = JSON.parse(event.body || '{}');
 
-  const contentMetadata = {
-    contentType: body.contentType,
-    title: body.title,
-    description: body.description
+  // TODO validate input matches the expected format - probably use zod
+  const dropMetadata = JSON.parse(event.body || '{}') as DropMetadata
+
+  // Make sure number of items matches length
+  if (dropMetadata.numberOfItems != dropMetadata.content.length)
+    return apiResponses._400({
+      error: 'Content length does not match number of items',
+    })
+
+  if (dropMetadata.numberOfItems > MAX_ITEMS_IN_COLLECTION)
+    return apiResponses._400({ error: 'Exceeds max number of items' })
+
+  const dropId = uuid()
+  const dropPreviewContentId = uuid()
+
+  const client = new S3Client({ region: process.env.AWS_REGION })
+  const dropPreviewCommand = new PutObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: `uploads/drop_${dropId}/${dropPreviewContentId}.${mime.extension(
+      dropMetadata.contentType
+    )!}`,
+    ContentType: dropMetadata.contentType,
+    Metadata: {
+      type: 'PREVIEW',
+      dropTitle: dropMetadata.dropTitle,
+      dropDescription: dropMetadata.dropDescription,
+      numberOfItems: dropMetadata.numberOfItems.toString(),
+      dropPreviewContentId,
+      contentType: dropMetadata.contentType,
+      dropId,
+      user,
+    },
+  })
+  console.log({ dropPreviewCommand })
+  const dropPreviewUrl = await getSignedUrl(client, dropPreviewCommand, {
+    expiresIn: 3600,
+  })
+
+  const content: InitiateUploadContentResponse[] = []
+
+  for (let index = 0; index < dropMetadata.numberOfItems; index++) {
+    const contentInfo = dropMetadata.content[index]
+    const contentPreviewCommand = new PutObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: `uploads/drop_${dropId}/${contentInfo.contentId}.${mime.extension(
+        contentInfo.contentType
+      )!}`,
+      ContentType: contentInfo.contentType,
+      Metadata: {
+        type: 'CONTENT',
+        contentTitle: contentInfo.contentTitle,
+        contentDescription: contentInfo.contentDescription,
+        contentId: contentInfo.contentId,
+        contentType: contentInfo.contentType,
+        dropId,
+        user,
+      },
+    })
+    console.log({ contentPreviewCommand })
+    const contentPreviewUrl = await getSignedUrl(
+      client,
+      contentPreviewCommand,
+      { expiresIn: 3600 }
+    )
+
+    content.push({
+      contentId: contentInfo.contentId,
+      url: contentPreviewUrl,
+    })
   }
 
-  // todo make this work for mystery drop fields
-  const dropId = uuid()
-  const photoId = uuid()
-
-  const client = new S3Client({ region: process.env.AWS_REGION });
-  const command = new PutObjectCommand(
-    {
-      Bucket: process.env.BUCKET_NAME,
-      Key: `uploads/drop_${dropId}/${photoId}.${mime.extension(contentMetadata.contentType)!}` ,
-      ContentType: contentMetadata.contentType,
-      Metadata: {
-        ...(contentMetadata),
-        photoId,
-        dropId,
-      }
-    }
-  );
-  const url = await getSignedUrl(client, command, { expiresIn: 3600 });
-
-  const result= {
+  const result: InitiateUploadResponse = {
     dropId,
     user,
-    photoId,
-    url,
-  };
+    dropPreviewContentId,
+    dropPreviewUrl,
+    content,
+  }
 
   return apiResponses._200({ result })
 }
 
 export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
-  const s3Record = event.Records[0].s3;
+  const s3Record = event.Records[0].s3
 
-  const client = new S3Client({ region: process.env.AWS_REGION });
   // First fetch metadata from S3
   const headObjectCommand = new HeadObjectCommand({
     Bucket: s3Record.bucket.name,
-    Key: s3Record.object.key
+    Key: s3Record.object.key,
   })
   const s3Object = await client.send(headObjectCommand)
   if (!s3Object.$metadata) {
-    // Shouldn't get here
-    const errorMessage = 'Cannot process content as no metadata is set for it';
-    console.error(errorMessage, { s3Object, event });
-    throw new Error(errorMessage);
+    const errorMessage = 'Cannot process content as no metadata is set for it'
+    console.error(errorMessage, { s3Object, event })
+    throw new Error(errorMessage)
   }
-  // S3 metadata field names are converted to lowercase, so need to map them out carefully
-  const contentDetails = {
-    dropId: s3Object.Metadata.dropId,
-    user: s3Object.Metadata.user,
-    description: s3Object.Metadata.description,
-    title: s3Object.Metadata.title,
-    id: s3Object.Metadata.photoid,
-    contentType: s3Object.Metadata.contenttype,
-    key: s3Record.object.key,
-  };
-  // Now write to DDB - todo process multiple image uploads in the same drop
-  // const result = await MysteryDrop.primaryKey.get(contentDetails.user)
-  // await savePhoto(photoDetails);
 
+  console.log(JSON.stringify(s3Object.Metadata))
+
+  // Process differently based on metadata type
+  if (s3Object.Metadata.type === 'PREVIEW') {
+    const dropDetails: CreateDropParams = {
+      dropId: s3Object.Metadata.dropid,
+      user: s3Object.Metadata.user,
+      description: s3Object.Metadata.dropdescription,
+      title: s3Object.Metadata.droptitle,
+      numberOfItems: s3Object.Metadata.numberofitems,
+      id: s3Object.Metadata.droppreviewcontentid,
+      contentType: s3Object.Metadata.contenttype,
+      key: s3Record.object.key
+    }
+
+    await createDrop(dropDetails)
+
+  } else if (s3Object.Metadata.type === 'CONTENT') {
+    const contentDetails: AddContentToDropParams = {
+      dropId: s3Object.Metadata.dropid,
+      user: s3Object.Metadata.user,
+      description: s3Object.Metadata.contentdescription,
+      title: s3Object.Metadata.contenttitle,
+      id: s3Object.Metadata.contentid,
+      contentType: s3Object.Metadata.contenttype,
+      key: s3Record.object.key
+    }
+
+    await addContentToDrop(contentDetails)
+
+  } else {
+    throw new Error('Missing metadata type')
+  }
 }
 
 // todo get presigned fetch URLs for rendering on artist dashboard & minting

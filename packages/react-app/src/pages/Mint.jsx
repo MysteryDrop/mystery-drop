@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios, { AxiosResponse } from "axios";
+import { v4 as uuid } from 'uuid';
+
 import { FileInput, TextInput, DateTimeInput } from "components";
 import { ReactComponent as ModalIndicator } from "assets/modal-indicator.svg";
 import { ReactComponent as EditIcon } from "assets/edit-icon.svg";
@@ -9,10 +12,57 @@ import noImage from "assets/no-image.svg";
 import "./Mint.scss";
 import MysteryDropAuth from "components/MysteryDropAuth";
 import { logout } from "util/auth";
+import { apiRequest } from "../util/util";
 
 const MAX_ARTWORKS = 6;
 const MAX_TITLE_LENGTH = 25;
 const MAX_DESCRIPTION_LENGTH = 250;
+
+export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks }) {
+  const contentMap = {};
+  const numberOfItems = artworks.length
+  const metadata = {
+    contentType: bannerImg.type,
+    dropTitle: title,
+    dropDescription: description,
+    numberOfItems: numberOfItems,
+    content: artworks.map(a => {
+      const contentId = uuid();
+      contentMap[contentId] = a;
+      return {
+        contentId,
+        contentType: a.image.type,
+        contentTitle: a.title,
+        contentDescription: a.description,
+      };
+    }),
+  };
+  console.log({metadata})
+  console.log({jwtAuthToken})
+  const initiateResult = await apiRequest({
+    path: "v1/initiateUpload",
+    method: "POST",
+    data: metadata,
+    accessToken: jwtAuthToken,
+  });
+  console.log(JSON.stringify(initiateResult))
+
+  // Upload preview
+  await axios.put(initiateResult.result.dropPreviewUrl, bannerImg, {
+    headers: {
+      "Content-Type": bannerImg.type,
+    },
+  });
+
+  // upload each artwork
+  for (let index = 0; index < numberOfItems; index++) {
+    await axios.put(initiateResult.result.content[index].url, contentMap[initiateResult.result.content[index].contentId].image, {
+      headers: {
+        "Content-Type": bannerImg.type,
+      },
+    });
+  }
+}
 
 export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   const [artworks, setArtworks] = useState([]);
@@ -23,7 +73,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   const [dropDate, setDropDate] = useState();
   const modal = useRef();
 
-  const submit = () => {
+  const submit = async () => {
     const errors = ensureValid();
 
     if (!errors) {
@@ -41,6 +91,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
           2,
         ),
       );
+      await uploadDrop({jwtAuthToken, bannerImg, title, description, dropDate, artworks})
     }
   };
 

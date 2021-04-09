@@ -166,9 +166,8 @@ functions:
           Fn::Join: ['', ['arn:aws:s3:::', "${self:custom.bucketName}", '/*'] ]
     events:
       - s3:
-        bucket: 
-          Fn::Join: ['', ['arn:aws:s3:::', "${self:custom.bucketName}", '/*'] ]
-        event: s3:ObjectCreatedj:*
-        rules:
-          - prefix: uploads/
-        existing: true
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploads/
+          existing: true

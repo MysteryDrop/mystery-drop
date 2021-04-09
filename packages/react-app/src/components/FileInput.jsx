@@ -10,7 +10,7 @@ export default function FileInput({ label, error, name, onChange, defaultImg }) 
     try {
       const img = URL.createObjectURL(event.nativeEvent.target.files[0]);
       setFile(img);
-      onChange(img);
+      onChange(event.nativeEvent.target.files[0]);
     } catch (err) {
       console.error(err);
     }

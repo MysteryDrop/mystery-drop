@@ -62,7 +62,61 @@ export const updateNonce = async (params: { publicAddress: string }) => {
   return documentClient.update(queryParams).promise().then((data) => data.Attributes.Nonce)
 }
 
+export interface CreateDropParams {
+  dropId: string
+  user: string
+  description: string
+  title: string
+  numberOfItems: string
+  id: string
+  contentType: string
+  key: string
+}
+
+export interface AddContentToDropParams {
+  dropId: string
+  user: string
+  description: string
+  title: string
+  id: string
+  contentType: string
+  key: string
+}
+
 // Create drop
+export const createDrop = async (params: CreateDropParams) => {
+  const paramsToAdd = JSON.stringify(params)
+  const queryParams: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `USER#${params.user}`,
+      SK: `#DROP#${params.dropId}`,
+    },
+    UpdateExpression: 'set #DD = :d, #CA = :c',
+    ExpressionAttributeNames: { "#DD" : "DropData", "#CA": "CreatedAt" },
+    ExpressionAttributeValues: { ":d": paramsToAdd, ":c": new Date().toISOString()}
+  }
+
+  return documentClient.update(queryParams).promise().then((data) => data)
+}
+
+export const addContentToDrop = async (params: AddContentToDropParams) => {
+  // todo validate input with zod
+  const paramsToAdd = JSON.stringify(params)
+  console.log({paramsToAdd})
+  const queryParams: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `USER#${params.user}`,
+      SK: `#DROP#${params.dropId}`,
+    },
+    UpdateExpression: "ADD #contents :content",
+    ExpressionAttributeNames: { "#contents" : "Contents" },
+    ExpressionAttributeValues: { ":content": documentClient.createSet([paramsToAdd]) }
+  }
+
+  return documentClient.update(queryParams).promise().then((data) => data)
+}
 
 // Get drop
 
