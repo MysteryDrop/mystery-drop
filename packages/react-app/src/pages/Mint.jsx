@@ -18,6 +18,11 @@ const MAX_ARTWORKS = 6;
 const MAX_TITLE_LENGTH = 25;
 const MAX_DESCRIPTION_LENGTH = 250;
 
+async function logDrops({jwtAuthToken}) {
+  const result = await apiRequest({path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken})
+  console.log({result})
+}
+
 export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks }) {
   const contentMap = {};
   const numberOfItems = artworks.length
@@ -398,6 +403,9 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
       />
       <button onClick={submit} className="submit">
         Mint Collection
+      </button>
+      <button onClick={() => logDrops({ jwtAuthToken })} className="button is-primary">
+        Log Drops
       </button>
       <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary">
         Logout

@@ -19,6 +19,7 @@ import {
   createDrop,
   CreateDropParams,
   createProfile,
+  getDropsForUser,
   getNonce,
   updateNonce,
 } from '../models/mysteryDropFunctions'
@@ -317,3 +318,27 @@ export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
 }
 
 // todo get presigned fetch URLs for rendering on artist dashboard & minting
+
+/**
+ * GET /drops
+ *
+ *
+ * Returns all drops for an authenticated user
+ * @method getDrops
+ * @throws Returns 401 if the user is not found
+ * @returns {Object} Pre-signed URL for the user to upload their image
+ */
+export async function getDrops(
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  const user = event.requestContext.authorizer.lambda.user
+
+  const drops = await getDropsForUser({publicAddress: user})
+  console.log({drops})
+
+  return apiResponses._200({drops})
+}
+
+// todo prep for minting
+
+// todo reveal

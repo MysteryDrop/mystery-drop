@@ -142,6 +142,16 @@ functions:
           method: post
           authorizer:
             name: customAuthorizer
+  getDrops:
+    handler: src/functions/dropHandler.getDrops
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET}
+    events:
+      - httpApi:
+          path: /v1/getDrops
+          method: get
+          authorizer:
+            name: customAuthorizer
   s3ProcessUploadedPhoto:
     handler: src/functions/dropHandler.s3ProcessUploadedPhoto
     iamRoleStatements:
