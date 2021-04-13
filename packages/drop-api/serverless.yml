@@ -145,7 +145,7 @@ functions:
   getDrops:
     handler: src/functions/dropHandler.getDrops
     environment:
-      JWT_SECRET: ${env:JWT_SECRET}
+      BUCKET_NAME: ${self:custom.bucketName}
     events:
       - httpApi:
           path: /v1/getDrops

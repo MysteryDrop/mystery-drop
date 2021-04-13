@@ -294,11 +294,10 @@ export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
       numberOfItems: s3Object.Metadata.numberofitems,
       id: s3Object.Metadata.droppreviewcontentid,
       contentType: s3Object.Metadata.contenttype,
-      key: s3Record.object.key
+      key: s3Record.object.key,
     }
 
     await createDrop(dropDetails)
-
   } else if (s3Object.Metadata.type === 'CONTENT') {
     const contentDetails: AddContentToDropParams = {
       dropId: s3Object.Metadata.dropid,
@@ -307,11 +306,10 @@ export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
       title: s3Object.Metadata.contenttitle,
       id: s3Object.Metadata.contentid,
       contentType: s3Object.Metadata.contenttype,
-      key: s3Record.object.key
+      key: s3Record.object.key,
     }
 
     await addContentToDrop(contentDetails)
-
   } else {
     throw new Error('Missing metadata type')
   }
@@ -319,24 +317,92 @@ export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
 
 // todo get presigned fetch URLs for rendering on artist dashboard & minting
 
+interface GetDropsOutput {
+  dropData: {
+    createdAt: string
+    dropPreviewUrl: string
+    dropTitle: string
+    dropDescription: string
+    numberOfItems: string
+    contentType: string
+    dropId: string
+    content: {
+      contentId: string
+      contentTitle: string
+    }[]
+  }
+}
+
 /**
  * GET /drops
  *
  *
  * Returns all drops for an authenticated user
  * @method getDrops
- * @throws Returns 401 if the user is not found
- * @returns {Object} Pre-signed URL for the user to upload their image
+ * @throws Returns 401 if the user is not authorized
+ * @returns {Object} Metadata for all user drops
  */
 export async function getDrops(
   event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
   const user = event.requestContext.authorizer.lambda.user
 
-  const drops = await getDropsForUser({publicAddress: user})
-  console.log({drops})
+  const drops = await getDropsForUser({ publicAddress: user })
+  console.log({ drops })
 
-  return apiResponses._200({drops})
+  const dropsToReturn: GetDropsOutput[] = []
+
+  if (drops.length) {
+    const client = new S3Client({ region: process.env.AWS_REGION })
+    for (let index = 0; index < drops.length; index++) {
+      const drop = drops[index]
+      const dropData = JSON.parse(drop.DropData)
+      const contentPreviewCommand = new GetObjectCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Key: dropData.key,
+      })
+      const dropPreviewUrl = await getSignedUrl(client, contentPreviewCommand, {
+        expiresIn: 3600,
+      })
+      const contents = JSON.parse(JSON.stringify(drop.Contents))
+      console.log({contents})
+      console.log(typeof contents)
+      const contentData = contents.map((content) => {
+        console.log({content})
+        const parsedContent = JSON.parse(content)
+        return { contentId: parsedContent.id, contentTitle: parsedContent.title }
+      })
+      dropsToReturn.push({
+        dropData: {
+          dropPreviewUrl,
+          dropTitle: dropData.title,
+          dropDescription: dropData.description,
+          numberOfItems: dropData.numberOfItems,
+          contentType: dropData.contentType,
+          dropId: dropData.dropId,
+          content: contentData,
+          createdAt: drop.CreatedAt
+        },
+      })
+    }
+
+    // todo get presigned url for images
+    // {
+    //   "drops": [
+    //     {
+    //       "SK": "#DROP#04bff03f-66c7-4cc7-a919-7463df91d999",
+    //       "PK": "USER#0x83BC06079538264Cc18829c5534387c69820A4E6",
+    //       "Contents": [
+    //         "{\"dropId\":\"04bff03f-66c7-4cc7-a919-7463df91d999\",\"user\":\"0x83BC06079538264Cc18829c5534387c69820A4E6\",\"description\":\"green\",\"title\":\"check\",\"id\":\"2c28977a-fd6a-4a2c-bc6e-d465b4aeb0b4\",\"contentType\":\"image/png\",\"key\":\"uploads/drop_04bff03f-66c7-4cc7-a919-7463df91d999/2c28977a-fd6a-4a2c-bc6e-d465b4aeb0b4.png\"}"
+    //       ],
+    //       "DropData": "{\"dropId\":\"04bff03f-66c7-4cc7-a919-7463df91d999\",\"user\":\"0x83BC06079538264Cc18829c5534387c69820A4E6\",\"description\":\"red\",\"title\":\"ex\",\"numberOfItems\":\"1\",\"id\":\"25a7a649-19b0-4a5c-b4e7-fd9864995be5\",\"contentType\":\"image/png\",\"key\":\"uploads/drop_04bff03f-66c7-4cc7-a919-7463df91d999/25a7a649-19b0-4a5c-b4e7-fd9864995be5.png\"}",
+    //       "CreatedAt": "2021-04-09T18:40:30.373Z"
+    //     }
+    //   ]
+    // }
+
+    return apiResponses._200({ drops: dropsToReturn })
+  }
 }
 
 // todo prep for minting

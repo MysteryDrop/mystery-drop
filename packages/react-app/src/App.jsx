@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
@@ -78,6 +79,8 @@ const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
 
 // 🔭 block explorer URL
 const blockExplorer = targetNetwork.blockExplorer;
+
+const queryClient = new QueryClient();
 function App(props) {
   // const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
   // if (DEBUG) console.log("🌎 mainnetProvider", mainnetProvider);
@@ -277,6 +280,7 @@ function App(props) {
   }, [loadWeb3Modal]);
 
   return (
+    <QueryClientProvider client={queryClient}>
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
       {DEBUG ? networkDisplay : null}
@@ -359,6 +363,7 @@ function App(props) {
 
       {/* <ThemeSwitch /> */}
     </div>
+    </QueryClientProvider>
   );
 }
 

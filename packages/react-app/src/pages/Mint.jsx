@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useQueryClient } from 'react-query'
 import axios, { AxiosResponse } from "axios";
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from "uuid";
 
 import { FileInput, TextInput, DateTimeInput } from "components";
 import { ReactComponent as ModalIndicator } from "assets/modal-indicator.svg";
@@ -13,19 +14,20 @@ import "./Mint.scss";
 import MysteryDropAuth from "components/MysteryDropAuth";
 import { logout } from "util/auth";
 import { apiRequest } from "../util/util";
+import Drops from "components/Drops";
 
 const MAX_ARTWORKS = 6;
 const MAX_TITLE_LENGTH = 25;
 const MAX_DESCRIPTION_LENGTH = 250;
 
-async function logDrops({jwtAuthToken}) {
-  const result = await apiRequest({path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken})
-  console.log({result})
+async function logDrops({ jwtAuthToken }) {
+  const result = await apiRequest({ path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken });
+  console.log({ result });
 }
 
 export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks }) {
   const contentMap = {};
-  const numberOfItems = artworks.length
+  const numberOfItems = artworks.length;
   const metadata = {
     contentType: bannerImg.type,
     dropTitle: title,
@@ -42,15 +44,15 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
       };
     }),
   };
-  console.log({metadata})
-  console.log({jwtAuthToken})
+  console.log({ metadata });
+  console.log({ jwtAuthToken });
   const initiateResult = await apiRequest({
     path: "v1/initiateUpload",
     method: "POST",
     data: metadata,
     accessToken: jwtAuthToken,
   });
-  console.log(JSON.stringify(initiateResult))
+  console.log(JSON.stringify(initiateResult));
 
   // Upload preview
   await axios.put(initiateResult.result.dropPreviewUrl, bannerImg, {
@@ -61,12 +63,17 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
 
   // upload each artwork
   for (let index = 0; index < numberOfItems; index++) {
-    await axios.put(initiateResult.result.content[index].url, contentMap[initiateResult.result.content[index].contentId].image, {
-      headers: {
-        "Content-Type": bannerImg.type,
+    await axios.put(
+      initiateResult.result.content[index].url,
+      contentMap[initiateResult.result.content[index].contentId].image,
+      {
+        headers: {
+          "Content-Type": bannerImg.type,
+        },
       },
-    });
+    );
   }
+
 }
 
 export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
@@ -77,6 +84,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   const [description, setDescription] = useState();
   const [dropDate, setDropDate] = useState();
   const modal = useRef();
+  const queryClient = useQueryClient()
 
   const submit = async () => {
     const errors = ensureValid();
@@ -96,7 +104,8 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
           2,
         ),
       );
-      await uploadDrop({jwtAuthToken, bannerImg, title, description, dropDate, artworks})
+      await uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks });
+      queryClient.invalidateQueries('userDrops')
     }
   };
 
@@ -312,7 +321,6 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   }, [artworks]);
 
   return jwtAuthToken ? (
-    // add auth here
     <div className="create-collection">
       <h1>Create Collection</h1>
       <FileInput error={bannerError} label="Preview Image" name="bannerImg" onChange={setBannerImg} />
@@ -402,7 +410,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
         }}
       />
       <button onClick={submit} className="submit">
-        Mint Collection
+        Upload Collection
       </button>
       <button onClick={() => logDrops({ jwtAuthToken })} className="button is-primary">
         Log Drops
@@ -410,6 +418,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
       <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary">
         Logout
       </button>
+      <Drops jwtAuthToken={jwtAuthToken} />
     </div>
   ) : (
     <MysteryDropAuth provider={provider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />

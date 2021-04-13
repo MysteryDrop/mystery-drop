@@ -17,19 +17,12 @@ export const login = async ({ provider }) => {
   // sign nonce
   const msg = `I am signing my one-time nonce: ${nonce}`
   const signature = await signer.signMessage(msg);
-  console.log({ signature });
-  const recoveredAddress = utils.verifyMessage(msg, signature);
-  console.log({ recoveredAddress });
 
   const loginResult = await apiRequest({path: `v1/sessions`, method: "POST", data: {
     publicAddress: address,
     signature,
   }});
 
-  console.log({loginResult})
-
-  const helloResult = await apiRequest({path: 'v1/helloAuth', method: 'GET', accessToken: loginResult.token})
-  console.log({helloResult})
   return loginResult.token;
 };
 
