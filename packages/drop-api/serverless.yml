@@ -12,7 +12,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   region: ${opt:region, 'us-east-1'}
   stage: dev
   iamRoleStatements:
@@ -34,10 +34,6 @@ provider:
           - ''
           - - !ImportValue '${self:custom.sstApp}-TableArn'
             - '/index/*'
-    - Effect: Allow
-      Action:
-        - ses:SendRawEmail
-      Resource: "*"
   httpApi:
     cors:
       allowedOrigins:
@@ -150,6 +146,30 @@ functions:
       - httpApi:
           path: /v1/getDrops
           method: get
+          authorizer:
+            name: customAuthorizer
+  prepareForMinting:
+    handler: src/functions/dropHandler.prepareForMinting
+    environment:
+      BUCKET_NAME: ${self:custom.bucketName}
+      TOKEN_EXTERNAL_URL_BASE : ${env:TOKEN_EXTERNAL_URL_BASE}
+      TOKEN_CONTRACT_ADDRESS : ${env:TOKEN_CONTRACT_ADDRESS}
+      CHAIN_ID : ${env:CHAIN_ID}
+    events:
+      - httpApi:
+          path: /v1/mint
+          method: get
+          authorizer:
+            name: customAuthorizer
+  lazyMint:
+    handler: src/functions/dropHandler.lazyMint
+    environment:
+      TOKEN_CONTRACT_ADDRESS : ${env:TOKEN_CONTRACT_ADDRESS}
+      RARIBLE_API_URL_BASE : ${env:RARIBLE_API_URL_BASE}
+    events:
+      - httpApi:
+          path: /v1/mint
+          method: post
           authorizer:
             name: customAuthorizer
   s3ProcessUploadedPhoto:

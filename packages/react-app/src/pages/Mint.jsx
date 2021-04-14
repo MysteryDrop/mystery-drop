@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useQueryClient } from 'react-query'
+import { useQueryClient } from "react-query";
 import axios, { AxiosResponse } from "axios";
 import { v4 as uuid } from "uuid";
 
@@ -73,7 +73,6 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
       },
     );
   }
-
 }
 
 export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
@@ -84,7 +83,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   const [description, setDescription] = useState();
   const [dropDate, setDropDate] = useState();
   const modal = useRef();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const submit = async () => {
     const errors = ensureValid();
@@ -105,7 +104,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
         ),
       );
       await uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks });
-      queryClient.invalidateQueries('userDrops')
+      queryClient.invalidateQueries("userDrops");
     }
   };
 
@@ -418,7 +417,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
       <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary">
         Logout
       </button>
-      <Drops jwtAuthToken={jwtAuthToken} />
+      <Drops provider={provider} jwtAuthToken={jwtAuthToken} />
     </div>
   ) : (
     <MysteryDropAuth provider={provider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />

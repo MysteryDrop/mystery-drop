@@ -34,7 +34,8 @@
     "mailparser": "^2.3.4",
     "mime-types": "2.1.30",
     "@aws-sdk/client-s3": "3.11.0",
-    "@aws-sdk/s3-request-presigner": "3.11.0"
+    "@aws-sdk/s3-request-presigner": "3.11.0",
+    "ipfs-only-hash": "4.0.0"
   },
   "workspaces": {
     "nohoist": [

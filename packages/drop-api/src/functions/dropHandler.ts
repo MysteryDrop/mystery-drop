@@ -12,15 +12,21 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { uuid } from 'uuidv4'
 import * as mime from 'mime-types'
+import * as hash from 'ipfs-only-hash'
+import axios from 'axios'
 
 import {
   addContentToDrop,
   AddContentToDropParams,
+  addTokenDataToContent,
+  createContent,
   createDrop,
   CreateDropParams,
   createProfile,
+  getContent,
   getDropsForUser,
   getNonce,
+  getTokenForMinting,
   updateNonce,
 } from '../models/mysteryDropFunctions'
 
@@ -310,6 +316,25 @@ export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
     }
 
     await addContentToDrop(contentDetails)
+
+    const contentMetadata = {
+      title: contentDetails.title,
+      description: contentDetails.description,
+      contentType: contentDetails.contentType,
+    }
+
+    const generatedBytes = await randomBytes(8)
+    const tokenIdSuffix = parseInt(generatedBytes.toString('hex'), 16)
+    const tokenId = `${contentDetails.user}0000${tokenIdSuffix}`
+
+    await createContent({
+      dropId: contentDetails.dropId,
+      contentId: contentDetails.id,
+      tokenId,
+      creator: contentDetails.user,
+      metadata: contentMetadata,
+      key: contentDetails.key,
+    })
   } else {
     throw new Error('Missing metadata type')
   }
@@ -365,12 +390,16 @@ export async function getDrops(
         expiresIn: 3600,
       })
       const contents = JSON.parse(JSON.stringify(drop.Contents))
-      console.log({contents})
-      console.log(typeof contents)
+      // TODO if  processing, return some state that tells UI to show processing so minting does not proceed yet
+      if (contents.length < parseInt(dropData.numberOfItems)) continue
+
       const contentData = contents.map((content) => {
-        console.log({content})
+        console.log({ content })
         const parsedContent = JSON.parse(content)
-        return { contentId: parsedContent.id, contentTitle: parsedContent.title }
+        return {
+          contentId: parsedContent.id,
+          contentTitle: parsedContent.title,
+        }
       })
       dropsToReturn.push({
         dropData: {
@@ -381,25 +410,10 @@ export async function getDrops(
           contentType: dropData.contentType,
           dropId: dropData.dropId,
           content: contentData,
-          createdAt: drop.CreatedAt
+          createdAt: drop.CreatedAt,
         },
       })
     }
-
-    // todo get presigned url for images
-    // {
-    //   "drops": [
-    //     {
-    //       "SK": "#DROP#04bff03f-66c7-4cc7-a919-7463df91d999",
-    //       "PK": "USER#0x83BC06079538264Cc18829c5534387c69820A4E6",
-    //       "Contents": [
-    //         "{\"dropId\":\"04bff03f-66c7-4cc7-a919-7463df91d999\",\"user\":\"0x83BC06079538264Cc18829c5534387c69820A4E6\",\"description\":\"green\",\"title\":\"check\",\"id\":\"2c28977a-fd6a-4a2c-bc6e-d465b4aeb0b4\",\"contentType\":\"image/png\",\"key\":\"uploads/drop_04bff03f-66c7-4cc7-a919-7463df91d999/2c28977a-fd6a-4a2c-bc6e-d465b4aeb0b4.png\"}"
-    //       ],
-    //       "DropData": "{\"dropId\":\"04bff03f-66c7-4cc7-a919-7463df91d999\",\"user\":\"0x83BC06079538264Cc18829c5534387c69820A4E6\",\"description\":\"red\",\"title\":\"ex\",\"numberOfItems\":\"1\",\"id\":\"25a7a649-19b0-4a5c-b4e7-fd9864995be5\",\"contentType\":\"image/png\",\"key\":\"uploads/drop_04bff03f-66c7-4cc7-a919-7463df91d999/25a7a649-19b0-4a5c-b4e7-fd9864995be5.png\"}",
-    //       "CreatedAt": "2021-04-09T18:40:30.373Z"
-    //     }
-    //   ]
-    // }
 
     return apiResponses._200({ drops: dropsToReturn })
   }
@@ -407,4 +421,111 @@ export async function getDrops(
 
 // todo prep for minting
 
-// todo reveal
+export async function prepareForMinting(
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  const parameters = event.queryStringParameters
+  const user = event.requestContext.authorizer.lambda.user
+
+  // todo input validation
+
+  const dropId = parameters['dropId']
+  const contentId = parameters['contentId']
+
+  const contentItem = await getContent({ dropId, contentId })
+
+  // Check if authorized to mint
+  if (contentItem.Creator.toLowerCase() !== user.toLowerCase()) {
+    return apiResponses._400({ error: 'Unauthorized to mint this content' })
+  }
+
+  // fetch key from dynamodb
+  const s3Key = contentItem.S3ObjectKey
+
+  const getObjectCommand = new GetObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: s3Key,
+  })
+  const s3Object = await client.send(getObjectCommand)
+  if (!s3Object.$metadata) {
+    const errorMessage = 'Cannot process content as no metadata is set for it'
+    console.error(errorMessage, { s3Object, event })
+    throw new Error(errorMessage)
+  }
+
+  const content = s3Object.Body
+  const contentIpfsHash = await hash.of(content)
+
+  const tokenId = contentItem.TokenId
+
+  // Calculate token metadata hash
+  const externalUrl = `${process.env.TOKEN_EXTERNAL_URL_BASE}${process.env.TOKEN_CONTRACT_ADDRESS}:${tokenId}`
+  const metadata = {
+    name: contentItem.Metadata.title,
+    description: contentItem.Metadata.description,
+    image: `ipfs://ipfs/${contentIpfsHash}`,
+    external_url: externalUrl,
+    // TODO add attributes maybe
+  }
+  const tokenMetadata = JSON.stringify(metadata)
+  const metadataCid = await hash.of(tokenMetadata)
+
+  const tokenUri = `ipfs/${metadataCid}`
+
+  await addTokenDataToContent({ dropId, contentId, tokenMetadata, tokenUri })
+
+  // Store metadata, tokenURI, tokenId
+  // Return tokenId, tokenUri, contract address, chainId
+
+  return apiResponses._200({
+    success: true,
+    tokenData: {
+      tokenId,
+      tokenUri,
+      contractAddress: process.env.TOKEN_CONTRACT_ADDRESS,
+      chainId: process.env.CHAIN_ID,
+    },
+  })
+}
+
+export async function lazyMint(
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  const user = event.requestContext.authorizer.lambda.user
+  const { contentId, dropId, signature } = JSON.parse(event.body)
+
+  const contentItem = await getTokenForMinting({dropId, contentId})
+
+  // validate signature
+
+  // store signature in DB
+
+  // Call rarible API
+  //  https://api-staging.rarible.com/protocol/v0.1/ethereum/nft/mints
+
+  const creators = [{ account: user, value: 100000 }]
+
+  const url = `${process.env.RARIBLE_API_URL_BASE}v0.1/ethereum/nft/mints`
+
+  const result = await axios.post(
+    url,
+    {
+      '@type': 'ERC721',
+      token: process.env.TOKEN_CONTRACT_ADDRESS,
+      tokenId: contentItem.TokenId,
+      uri: contentItem.TokenUri,
+      creators,
+      royalties: [],
+      signatures: [signature],
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+
+  console.log({result})
+
+  return apiResponses._200({ result })
+}

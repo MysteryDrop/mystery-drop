@@ -156,4 +156,106 @@ export const getDropsForUser = (params: { publicAddress: string }) => {
     .then((data) => data.Items)
 }
 
-// Update drop
+export interface CreateContentParams {
+  dropId: string
+  contentId: string
+  tokenId: string // TODO GSI
+  creator: string
+  metadata: {[key: string]: any}
+  key: string
+}
+// Create content entry
+export const createContent = async (params: CreateContentParams) => {
+  const queryParams: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `DROP#${params.dropId}`,
+      SK: `#CONTENT#${params.contentId}`,
+    },
+    UpdateExpression: 'set #CA = :ca, #TI = :ti, #C = :c, #K = :k, #M = :m',
+    ExpressionAttributeNames: {
+      '#CA': 'CreatedAt',
+      '#TI': 'TokenId',
+      '#C': 'Creator',
+      '#K': 'S3ObjectKey',
+      '#M': 'Metadata',
+    },
+    ExpressionAttributeValues: {
+      ':ca': new Date().toISOString(),
+      ':ti': params.tokenId,
+      ':c': params.creator,
+      ':k': params.key,
+      ':m': params.metadata
+    },
+  }
+
+  return documentClient
+    .update(queryParams)
+    .promise()
+    .then((data) => data)
+}
+
+export const getContent = (params: { dropId: string, contentId: string }) => {
+  const queryParams: DynamoDB.DocumentClient.GetItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `DROP#${params.dropId}`,
+      SK: `#CONTENT#${params.contentId}`,
+    },
+    ProjectionExpression: 'Creator, S3ObjectKey, Metadata, TokenId',
+  }
+  console.log({ queryParams })
+  return documentClient
+    .get(queryParams)
+    .promise()
+    .then((data) => data.Item)
+}
+
+interface AddTokenDataToContentParams {
+  dropId: string,
+  contentId: string,
+  tokenMetadata: string,
+  tokenUri: string,
+}
+
+export const addTokenDataToContent = async (params: AddTokenDataToContentParams) => {
+  const queryParams: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `DROP#${params.dropId}`,
+      SK: `#CONTENT#${params.contentId}`,
+    },
+    UpdateExpression: 'set #UA = :ua, #TM = :tm, #TU = :tu',
+    ExpressionAttributeNames: {
+      '#UA': 'UpdatedAt',
+      '#TM': 'TokenMetadata',
+      '#TU': 'TokenUri',
+    },
+    ExpressionAttributeValues: {
+      ':ua': new Date().toISOString(),
+      ':tm': params.tokenMetadata,
+      ':tu': params.tokenUri,
+    },
+  }
+
+  return documentClient
+    .update(queryParams)
+    .promise()
+    .then((data) => data)
+}
+
+export const getTokenForMinting = (params: { dropId: string, contentId: string }) => {
+  const queryParams: DynamoDB.DocumentClient.GetItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `DROP#${params.dropId}`,
+      SK: `#CONTENT#${params.contentId}`,
+    },
+    ProjectionExpression: 'Creator, TokenId, TokenUri',
+  }
+  console.log({ queryParams })
+  return documentClient
+    .get(queryParams)
+    .promise()
+    .then((data) => data.Item)
+}
