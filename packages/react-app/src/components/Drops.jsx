@@ -20,7 +20,7 @@ async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
     signer,
     result.tokenData.tokenId,
     result.tokenData.tokenUri,
-    [{ account: address, value: 100000 }],
+    [{ account: address, value: 10000 }],
     [],
     result.tokenData.contractAddress,
   );
@@ -50,15 +50,15 @@ export default function Drops({ jwtAuthToken, provider }) {
     <div id="drops">
       {data &&
         data.drops.map(drop => (
-          <div key={drop.dropData.dropId}>
+          <div key={drop.dropId}>
             <span>test</span>
-            <img alt="" src={drop.dropData.dropPreviewUrl} />
-            {drop.dropData.content.map(content => (
+            <img alt="" src={drop.dropPreviewUrl} />
+            {drop.content.map(content => (
               <div key={content.contentId}>
                 <span>{content.contentTitle}</span>
                 <button
                   onClick={() =>
-                    mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropData.dropId })
+                    mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
                   }
                   className="button is-primary"
                 >

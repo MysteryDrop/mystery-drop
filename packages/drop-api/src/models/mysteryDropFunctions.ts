@@ -159,7 +159,6 @@ export const getDropsForUser = (params: { publicAddress: string }) => {
 export interface CreateContentParams {
   dropId: string
   contentId: string
-  tokenId: string // TODO GSI
   creator: string
   metadata: {[key: string]: any}
   key: string
@@ -172,17 +171,15 @@ export const createContent = async (params: CreateContentParams) => {
       PK: `DROP#${params.dropId}`,
       SK: `#CONTENT#${params.contentId}`,
     },
-    UpdateExpression: 'set #CA = :ca, #TI = :ti, #C = :c, #K = :k, #M = :m',
+    UpdateExpression: 'set #CA = :ca, #C = :c, #K = :k, #M = :m',
     ExpressionAttributeNames: {
       '#CA': 'CreatedAt',
-      '#TI': 'TokenId',
       '#C': 'Creator',
       '#K': 'S3ObjectKey',
       '#M': 'Metadata',
     },
     ExpressionAttributeValues: {
       ':ca': new Date().toISOString(),
-      ':ti': params.tokenId,
       ':c': params.creator,
       ':k': params.key,
       ':m': params.metadata
@@ -213,6 +210,7 @@ export const getContent = (params: { dropId: string, contentId: string }) => {
 
 interface AddTokenDataToContentParams {
   dropId: string,
+  tokenId: string,
   contentId: string,
   tokenMetadata: string,
   tokenUri: string,
@@ -225,15 +223,17 @@ export const addTokenDataToContent = async (params: AddTokenDataToContentParams)
       PK: `DROP#${params.dropId}`,
       SK: `#CONTENT#${params.contentId}`,
     },
-    UpdateExpression: 'set #UA = :ua, #TM = :tm, #TU = :tu',
+    UpdateExpression: 'set #UA = :ua, #TM = :tm, #TU = :tu, #TI = :ti',
     ExpressionAttributeNames: {
       '#UA': 'UpdatedAt',
       '#TM': 'TokenMetadata',
+      '#TI': 'TokenId',
       '#TU': 'TokenUri',
     },
     ExpressionAttributeValues: {
       ':ua': new Date().toISOString(),
       ':tm': params.tokenMetadata,
+      ':ti': params.tokenId,
       ':tu': params.tokenUri,
     },
   }

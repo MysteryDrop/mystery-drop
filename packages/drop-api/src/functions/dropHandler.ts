@@ -1,7 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult, S3Event } from 'aws-lambda'
 import apiResponses from 'src/requests/apiResponses'
-import { sign, verify } from 'jsonwebtoken'
-import { randomBytes } from 'crypto'
+import { sign } from 'jsonwebtoken'
 import { utils } from 'ethers'
 import {
   S3Client,
@@ -323,14 +322,9 @@ export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
       contentType: contentDetails.contentType,
     }
 
-    const generatedBytes = await randomBytes(8)
-    const tokenIdSuffix = parseInt(generatedBytes.toString('hex'), 16)
-    const tokenId = `${contentDetails.user}0000${tokenIdSuffix}`
-
     await createContent({
       dropId: contentDetails.dropId,
       contentId: contentDetails.id,
-      tokenId,
       creator: contentDetails.user,
       metadata: contentMetadata,
       key: contentDetails.key,
@@ -342,21 +336,30 @@ export async function s3ProcessUploadedPhoto(event: S3Event): Promise<void> {
 
 // todo get presigned fetch URLs for rendering on artist dashboard & minting
 
-interface GetDropsOutput {
-  dropData: {
-    createdAt: string
-    dropPreviewUrl: string
-    dropTitle: string
-    dropDescription: string
-    numberOfItems: string
-    contentType: string
-    dropId: string
-    content: {
-      contentId: string
-      contentTitle: string
-    }[]
-  }
+interface GetDropsOutputBase {
+  status: string
+  dropId: string
 }
+
+interface GetDropsOutputMintable extends GetDropsOutputBase {
+  status: 'MINTABLE'
+  createdAt: string
+  dropPreviewUrl: string
+  dropTitle: string
+  dropDescription: string
+  numberOfItems: string
+  contentType: string
+  content: {
+    contentId: string
+    contentTitle: string
+  }[]
+}
+
+interface GetDropsOutputProcessing extends GetDropsOutputBase {
+  status: 'PROCESSING'
+}
+
+type GetDropsOutput = GetDropsOutputMintable | GetDropsOutputProcessing
 
 /**
  * GET /drops
@@ -380,39 +383,52 @@ export async function getDrops(
   if (drops.length) {
     const client = new S3Client({ region: process.env.AWS_REGION })
     for (let index = 0; index < drops.length; index++) {
+      // todo add try catch to handle when content is processed before drop
+      // parse dropID from SK
       const drop = drops[index]
-      const dropData = JSON.parse(drop.DropData)
-      const contentPreviewCommand = new GetObjectCommand({
-        Bucket: process.env.BUCKET_NAME,
-        Key: dropData.key,
-      })
-      const dropPreviewUrl = await getSignedUrl(client, contentPreviewCommand, {
-        expiresIn: 3600,
-      })
-      const contents = JSON.parse(JSON.stringify(drop.Contents))
-      // TODO if  processing, return some state that tells UI to show processing so minting does not proceed yet
-      if (contents.length < parseInt(dropData.numberOfItems)) continue
+      const dropId = drop.SK.split('#DROP#')[1]
+      try {
+        const dropData = JSON.parse(drop.DropData)
+        const contentPreviewCommand = new GetObjectCommand({
+          Bucket: process.env.BUCKET_NAME,
+          Key: dropData.key,
+        })
+        const dropPreviewUrl = await getSignedUrl(
+          client,
+          contentPreviewCommand,
+          {
+            expiresIn: 3600,
+          }
+        )
+        const contents = JSON.parse(JSON.stringify(drop.Contents))
+        if (contents.length < parseInt(dropData.numberOfItems))
+          throw new Error('still processing')
 
-      const contentData = contents.map((content) => {
-        console.log({ content })
-        const parsedContent = JSON.parse(content)
-        return {
-          contentId: parsedContent.id,
-          contentTitle: parsedContent.title,
-        }
-      })
-      dropsToReturn.push({
-        dropData: {
+        const contentData = contents.map((content) => {
+          console.log({ content })
+          const parsedContent = JSON.parse(content)
+          return {
+            contentId: parsedContent.id,
+            contentTitle: parsedContent.title,
+          }
+        })
+        dropsToReturn.push({
+          status: 'MINTABLE',
           dropPreviewUrl,
           dropTitle: dropData.title,
           dropDescription: dropData.description,
           numberOfItems: dropData.numberOfItems,
           contentType: dropData.contentType,
-          dropId: dropData.dropId,
+          dropId,
           content: contentData,
           createdAt: drop.CreatedAt,
-        },
-      })
+        })
+      } catch {
+        dropsToReturn.push({
+          status: 'PROCESSING',
+          dropId,
+        })
+      }
     }
 
     return apiResponses._200({ drops: dropsToReturn })
@@ -456,7 +472,11 @@ export async function prepareForMinting(
   const content = s3Object.Body
   const contentIpfsHash = await hash.of(content)
 
-  const tokenId = contentItem.TokenId
+  const url =`${process.env.RARIBLE_API_URL_BASE}v0.1/ethereum/nft/collections/${process.env.TOKEN_CONTRACT_ADDRESS}/generate_token_id?minter=${user}`
+  const tokenIdRes = await axios.get(url)
+  if (tokenIdRes.status !== 200) return apiResponses._400({error: 'Failed to get tokenId from Rarible'})
+  const tokenId = tokenIdRes.data.tokenId
+
 
   // Calculate token metadata hash
   const externalUrl = `${process.env.TOKEN_EXTERNAL_URL_BASE}${process.env.TOKEN_CONTRACT_ADDRESS}:${tokenId}`
@@ -472,7 +492,7 @@ export async function prepareForMinting(
 
   const tokenUri = `ipfs/${metadataCid}`
 
-  await addTokenDataToContent({ dropId, contentId, tokenMetadata, tokenUri })
+  await addTokenDataToContent({ tokenId, dropId, contentId, tokenMetadata, tokenUri })
 
   // Store metadata, tokenURI, tokenId
   // Return tokenId, tokenUri, contract address, chainId
@@ -494,7 +514,7 @@ export async function lazyMint(
   const user = event.requestContext.authorizer.lambda.user
   const { contentId, dropId, signature } = JSON.parse(event.body)
 
-  const contentItem = await getTokenForMinting({dropId, contentId})
+  const contentItem = await getTokenForMinting({ dropId, contentId })
 
   // validate signature
 
@@ -525,7 +545,7 @@ export async function lazyMint(
     }
   )
 
-  console.log({result})
+  console.log({ result })
 
   return apiResponses._200({ result })
 }
