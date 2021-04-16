@@ -104,6 +104,7 @@ functions:
     handler: src/functions/dropHandler.login
     environment:
       JWT_SECRET: ${env:JWT_SECRET}
+      JWT_EXPIRATION_TIME: ${env:JWT_EXPIRATION_TIME}
     events:
       - httpApi:
           path: /v1/sessions

@@ -53,7 +53,7 @@ export default function Drops({ jwtAuthToken, provider }) {
           <div key={drop.dropId}>
             <span>test</span>
             <img alt="" src={drop.dropPreviewUrl} />
-            {drop.content.map(content => (
+            {drop.content && drop.content.map(content => (
               <div key={content.contentId}>
                 <span>{content.contentTitle}</span>
                 <button
