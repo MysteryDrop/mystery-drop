@@ -190,16 +190,9 @@ export async function lazyMint(
   const user = event.requestContext.authorizer.lambda.user
   const { contentId, dropId, signature } = JSON.parse(event.body)
 
-  const contentItem = await getTokenForMinting({ dropId, contentId })
-
-  // validate signature
-
-  // store signature in DB
-
-  // Call rarible API
-  //  https://api-staging.rarible.com/protocol/v0.1/ethereum/nft/mints
-
-  const creators = [{ account: user, value: 100000 }]
+  try {
+    const contentItem = await getTokenForMinting({ dropId, contentId })
+  const creators = [{ account: user, value: 10000 }]
 
   const url = `${process.env.RARIBLE_API_URL_BASE}v0.1/ethereum/nft/mints`
 
@@ -221,7 +214,18 @@ export async function lazyMint(
     }
   )
 
-  console.log({ result })
+    if (result.status !== 200) throw new Error('failed to mint with Rarible API')
 
-  return apiResponses._200({ result })
+    const tokenData = result.data
+
+    return apiResponses._200({ success: true, tokenData })
+  } catch (e) {
+    return apiResponses._400({ error: e.message })
+  }
+
+
+  // validate signature
+
+  // store signature in DB
+
 }

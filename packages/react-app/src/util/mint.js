@@ -1,14 +1,14 @@
-const Types = {
-  Part: [
-    { name: "account", type: "address" },
-    { name: "value", type: "uint96" },
-  ],
-  Mint721: [
-    { name: "tokenId", type: "uint256" },
-    { name: "tokenURI", type: "string" },
-    { name: "creators", type: "Part[]" },
-    { name: "royalties", type: "Part[]" },
-  ],
+export const ERC721Types = {
+	Part: [
+		{name: 'account', type: 'address'},
+		{name: 'value', type: 'uint96'}
+	],
+	Mint721: [
+		{name: 'tokenId', type: 'uint256'},
+		{name: 'tokenURI', type: 'string'},
+		{name: 'creators', type: 'Part[]'},
+		{name: 'royalties', type: 'Part[]'}
+	]
 };
 
 async function sign(signer, tokenId, tokenURI, creators, royalties, verifyingContract) {
@@ -27,7 +27,8 @@ async function sign(signer, tokenId, tokenURI, creators, royalties, verifyingCon
   }
   console.log({domain})
   console.log({data})
-  return (await signer._signTypedData(domain, Types, data));
+  return (await signer._signTypedData(domain, ERC721Types, data));
 }
+
 
 module.exports = { sign };

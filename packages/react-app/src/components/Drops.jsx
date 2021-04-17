@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useQuery } from "react-query";
+
 import "./Drops.scss";
 import { apiRequest } from "../util/util";
-import { sign } from "util/mint";
+import { createLazyMintForm, signLazyMintMessage } from "util/signtypedData/lazyMint";
 
 async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   const result = await apiRequest({
@@ -16,14 +17,22 @@ async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   const address = await signer.getAddress();
   console.log({ address });
 
-  const signature = await sign(
-    signer,
+
+  const lazyMintForm = createLazyMintForm(
+    address,
     result.tokenData.tokenId,
+    result.tokenData.contractAddress,
     result.tokenData.tokenUri,
-    [{ account: address, value: 10000 }],
-    [],
+  );
+
+  const signature = await signLazyMintMessage(
+    provider,
+    lazyMintForm,
+    address,
+    result.tokenData.chainId,
     result.tokenData.contractAddress,
   );
+
   console.log({ signature });
   const mintResult = await apiRequest({
     path: `v1/mint?contentId=${contentId}&dropId=${dropId}`,
@@ -48,24 +57,25 @@ export default function Drops({ jwtAuthToken, provider }) {
 
   return (
     <div id="drops">
-      {data &&
+      {data && data.drops &&
         data.drops.map(drop => (
           <div key={drop.dropId}>
             <span>test</span>
             <img alt="" src={drop.dropPreviewUrl} />
-            {drop.content && drop.content.map(content => (
-              <div key={content.contentId}>
-                <span>{content.contentTitle}</span>
-                <button
-                  onClick={() =>
-                    mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
-                  }
-                  className="button is-primary"
-                >
-                  Mint Item
-                </button>
-              </div>
-            ))}
+            {drop.content &&
+              drop.content.map(content => (
+                <div key={content.contentId}>
+                  <span>{content.contentTitle}</span>
+                  <button
+                    onClick={() =>
+                      mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
+                    }
+                    className="button is-primary"
+                  >
+                    Mint Item
+                  </button>
+                </div>
+              ))}
             <button onClick={() => console.log({ jwtAuthToken })} className="button is-primary">
               Mint Collection
             </button>
