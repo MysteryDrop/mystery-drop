@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
@@ -251,7 +251,7 @@ function App(props) {
           message={"⚠️ Wrong Network"}
           description={
             <div>
-              You have <b>{NETWORK(selectedChainId).name}</b> selected and you need to be on{" "}
+              You have <b>{NETWORK(selectedChainId)}</b> selected and you need to be on{" "}
               <b>{NETWORK(localChainId).name}</b>.
             </div>
           }

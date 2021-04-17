@@ -17,8 +17,8 @@ import { apiRequest } from "../util/util";
 import Drops from "components/Drops";
 
 const MAX_ARTWORKS = 6;
-const MAX_TITLE_LENGTH = 25;
-const MAX_DESCRIPTION_LENGTH = 250;
+const MAX_TITLE_LENGTH = 250;
+const MAX_DESCRIPTION_LENGTH = 1000;
 
 async function logDrops({ jwtAuthToken }) {
   const result = await apiRequest({ path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken });
@@ -29,7 +29,7 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
   const contentMap = {};
   const numberOfItems = artworks.length;
   const metadata = {
-    contentType: bannerImg.type,
+    contentType: bannerImg.imageData.type,
     dropTitle: title,
     dropDescription: description,
     numberOfItems: numberOfItems,
@@ -38,7 +38,7 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
       contentMap[contentId] = a;
       return {
         contentId,
-        contentType: a.image.type,
+        contentType: a.image.imageData.type,
         contentTitle: a.title,
         contentDescription: a.description,
       };
@@ -55,9 +55,9 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
   console.log(JSON.stringify(initiateResult));
 
   // Upload preview
-  await axios.put(initiateResult.result.dropPreviewUrl, bannerImg, {
+  await axios.put(initiateResult.result.dropPreviewUrl, bannerImg.imageData, {
     headers: {
-      "Content-Type": bannerImg.type,
+      "Content-Type": bannerImg.imageData.type,
     },
   });
 
@@ -65,10 +65,10 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
   for (let index = 0; index < numberOfItems; index++) {
     await axios.put(
       initiateResult.result.content[index].url,
-      contentMap[initiateResult.result.content[index].contentId].image,
+      contentMap[initiateResult.result.content[index].contentId].image.imageData,
       {
         headers: {
-          "Content-Type": bannerImg.type,
+          "Content-Type": bannerImg.imageData.type,
         },
       },
     );
@@ -219,7 +219,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   const renderCard = ({ title, titleError, image, imageError, description, descError }, index) => (
     <div className="card" key={index}>
       <div className={`art-card fade-in ${titleError || imageError || descError ? "error" : null}`}>
-        <img alt="preview" src={image || noImage} />
+        <img alt="preview" src={image?.localUrl || noImage} />
         <div
           className={editing === index ? "action-icon editing" : "action-icon"}
           onClick={() => {
