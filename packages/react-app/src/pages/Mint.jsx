@@ -105,7 +105,17 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
       );
       await uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks });
       queryClient.invalidateQueries("userDrops");
+      resetInputs();
     }
+  };
+
+  const resetInputs = () => {
+    setArtworks([]);
+    setEditing(-1);
+    setBannerImg(null);
+    setTitle(null);
+    setDescription(null);
+    setDropDate(null);
   };
 
   // Form validation
@@ -322,7 +332,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   return jwtAuthToken ? (
     <div className="create-collection">
       <h1>Create Collection</h1>
-      <FileInput error={bannerError} label="Preview Image" name="bannerImg" onChange={setBannerImg} />
+      <FileInput error={bannerError} label="Preview Image" name="bannerImg" onChange={setBannerImg} file={bannerImg} />
       <TextInput
         label="Name"
         placeholder="Eg. Splash"
@@ -371,7 +381,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
                   image,
                 });
               }}
-              defaultImg={artworks[editing]?.image}
+              file={artworks[editing]?.image}
             />
             <TextInput
               label="Name"
@@ -404,6 +414,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
       <DateTimeInput
         label="Drop Date"
         error={dateError}
+        value={dropDate}
         onChange={event => {
           setDropDate(event.nativeEvent.target.value);
         }}

@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { ReactComponent as UploadIcon } from "assets/upload-icon.svg";
 import "./FileInput.scss";
 
-export default function FileInput({ label, error, name, onChange, defaultImg }) {
-  const [file, setFile] = useState(defaultImg);
-
+export default function FileInput({ label, error, name, onChange, file }) {
   // add authenticated upload to s3 via lambda here
   const handleUpload = event => {
     try {
       const img = URL.createObjectURL(event.nativeEvent.target.files[0]);
-      setFile(img);
-      onChange(event.nativeEvent.target.files[0]);
+      onChange({ imageData: event.nativeEvent.target.files[0], localUrl: img });
     } catch (err) {
       console.error(err);
     }
@@ -21,7 +18,7 @@ export default function FileInput({ label, error, name, onChange, defaultImg }) 
       <h4>{label}</h4>
       <label className={file ? "uploaded-image" : error ? "error" : null}>
         <div>
-          <img alt="" src={file} />
+          <img alt="" src={file?.localUrl} />
         </div>
         <UploadIcon />
         <p>PNG, GIF, WEBP or MP4</p>
