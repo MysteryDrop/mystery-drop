@@ -23,3 +23,6 @@ export { default as WalletConnect } from "./WalletConnect";
 export { default as TextInput } from "./TextInput";
 export { default as FileInput } from "./FileInput";
 export { default as DateTimeInput } from "./DateTimeInput";
+export { default as CollectionUpload } from "./CollectionUpload";
+export { default as CollectionDetails } from "./CollectionDetails";
+export { default as StepIndicator } from "./StepIndicator";

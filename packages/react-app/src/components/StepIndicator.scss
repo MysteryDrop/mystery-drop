@@ -1,0 +1,36 @@
+@import "styles/default.scss";
+
+.step-indicator {
+  display: flex;
+  flex-direction: row;
+  margin: 20px 0;
+  width: 100%;
+
+  .step {
+    border-bottom: 2px solid;
+    margin-right: 10px;
+    padding: 10px;
+
+    &.current {
+      color: $green;
+      border-color: $green;
+      opacity: 0.5;
+    }
+
+    &.done {
+      color: $green;
+      border-color: $green;
+    }
+
+    &.future {
+      color: $placeholder;
+      border-color: $placeholder;
+    }
+
+    p {
+      text-align: center;
+      width: 100%;
+      margin: 0;
+    }
+  }
+}

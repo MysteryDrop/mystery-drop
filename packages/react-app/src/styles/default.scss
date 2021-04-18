@@ -47,9 +47,11 @@ p {
 }
 
 .button {
-  padding: 10px 15px;
+  padding: 5px 10px;
   border: 2px solid black;
+  background: white;
   border-radius: 10px;
+  min-width: 100px;
   font-weight: 400;
   margin: 10px;
   color: black;
@@ -57,6 +59,7 @@ p {
   &:hover {
     color: $green;
     border-color: $green;
+    cursor: pointer;
   }
 
   &.is-primary {
