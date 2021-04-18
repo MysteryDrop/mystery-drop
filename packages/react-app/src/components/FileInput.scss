@@ -38,10 +38,11 @@
     &.uploaded-image {
       border: none;
       width: auto;
-      max-width: 100%;
       height: auto;
 
       img {
+        max-width: 100%;
+        max-height: 100%;
         border-radius: 10px;
         filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
       }

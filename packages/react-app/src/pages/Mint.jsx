@@ -419,7 +419,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
           setDropDate(event.nativeEvent.target.value);
         }}
       />
-      <button onClick={submit} className="submit">
+      <button onClick={submit} className="submit button is-primary">
         Upload Collection
       </button>
       <button onClick={() => logDrops({ jwtAuthToken })} className="button is-primary">

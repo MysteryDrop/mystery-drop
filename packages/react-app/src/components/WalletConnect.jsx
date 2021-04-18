@@ -15,13 +15,13 @@ export default function WalletConnect({ web3Modal, setProvider, jwtAuthToken, se
     setProvider(new Web3Provider(provider));
   }, [setProvider, setJwtAuthToken]);
 
-  return web3Modal?.cachedProvider? (
+  return web3Modal?.cachedProvider ? (
     <a className="button" onClick={logout}>
       Logout
     </a>
   ) : (
     <a className="button is-primary" onClick={connect}>
-      <strong>Connect Wallet</strong>
+      Connect Wallet
     </a>
   );
 }

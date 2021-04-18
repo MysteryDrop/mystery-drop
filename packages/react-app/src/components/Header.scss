@@ -1,0 +1,99 @@
+@import "styles/default.scss";
+
+nav {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  right: 0;
+  left: 0;
+  background: white;
+  width: 100%;
+  padding: 0 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .logo {
+    img {
+      margin: 10px;
+      height: 40px;
+    }
+  }
+
+  .hamburger {
+    width: 35px;
+    height: 35px;
+    display: none;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .nav-links {
+    position: absolute;
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+
+    .nav-link {
+      margin: auto 20px;
+      font-size: 18px;
+      font-weight: 400;
+      color: black;
+      text-align: center;
+
+      &:hover {
+        color: $green;
+      }
+
+      &.is-selected {
+        color: $green;
+      }
+    }
+  }
+
+  .button {
+    margin: 10px;
+    margin-left: auto;
+  }
+}
+
+@media only screen and (max-width: $medium) {
+  nav {
+    .hamburger {
+      display: block;
+      margin: 10px;
+    }
+    .nav-links {
+      position: absolute;
+      flex-direction: column;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 0;
+      overflow: hidden;
+      z-index: -1;
+      background: white;
+      transition: all 100ms ease-in-out;
+
+      &.expanded {
+        height: 100vh;
+      }
+      .nav-link {
+        text-align: left;
+        margin: 20px;
+        font-size: 24px;
+      }
+    }
+  }
+}

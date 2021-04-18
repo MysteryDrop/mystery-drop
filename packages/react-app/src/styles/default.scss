@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700&display=swap");
 
 $purple: #652d90;
 $green: #4a9d45;
@@ -12,10 +12,16 @@ $medium: 720px;
 
 * {
   font-family: "Montserrat", sans-serif;
+  box-sizing: border-box;
 
   &:focus {
     outline: none;
   }
+}
+
+img {
+  max-height: 100%;
+  max-width: 100%;
 }
 
 html {
@@ -40,12 +46,30 @@ p {
   font-weight: 600;
 }
 
-button {
+.button {
   padding: 10px 15px;
-  border: none;
+  border: 2px solid black;
   border-radius: 10px;
-  font-weight: 600;
-  margin: 10px 0;
-  color: white;
-  background-color: $green;
+  font-weight: 400;
+  margin: 10px;
+  color: black;
+
+  &:hover {
+    color: $green;
+    border-color: $green;
+  }
+
+  &.is-primary {
+    color: white;
+    background-color: $green;
+    border: none;
+
+    &:hover {
+      color: white;
+    }
+  }
+}
+
+.main-content-container {
+  padding-top: 60px;
 }

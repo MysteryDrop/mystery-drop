@@ -1,99 +1,54 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import logo from "assets/logo-small.svg";
+import hamburger from "assets/hamburger.svg";
 import WalletConnect from "./WalletConnect";
-import logoDark from "assets/mysteryDrop-logo-dark.svg";
-import MysteryDropAuth from "./MysteryDropAuth";
+import "./Header.scss";
 
 // displays a page header
 
-export default function Header({ loadWeb3Modal, web3Modal, logoutOfWeb3Modal, setProvider, jwtAuthToken, setJwtAuthToken }) {
-  const [route, setRoute] = useState(window.location.pathname);
+export default function Header({
+  loadWeb3Modal,
+  web3Modal,
+  logoutOfWeb3Modal,
+  setProvider,
+  jwtAuthToken,
+  setJwtAuthToken,
+}) {
+  const route = window.location.pathname;
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <nav className="navbar" role="navigation" aria-label="main navigation">
-      <div className="navbar-brand">
-        <a className="navbar-item" href="/">
-          <img src={logoDark} height="35" alt="logo" />
+    <nav>
+      <a className="logo" href="/">
+        <img alt="Logo" src={logo} />
+      </a>
+      <div className={expanded ? "nav-links expanded" : "nav-links"}>
+        <a href="/" className={route === "/" ? "nav-link is-selected" : "nav-link"}>
+          Explore
         </a>
-
-        <a
-          role="button"
-          className="navbar-burger"
-          aria-label="menu"
-          aria-expanded="false"
-          data-target="navbarBasicExample"
-        >
-          <span aria-hidden="true" />
-          <span aria-hidden="true" />
-          <span aria-hidden="true" />
+        <a href="/mint" className={route === "/mint" ? "nav-link is-selected" : "nav-link"}>
+          Mint
+        </a>
+        <a href="/about" className={route === "/about" ? "nav-link is-selected" : "nav-link"}>
+          About
         </a>
       </div>
-
-      <div id="navbarBasicExample" className="navbar-menu">
-        <div className="navbar-start">
-          <Link
-            className={route === "/" ? "navbar-item is-selected" : "navbar-item"}
-            to="/"
-            onClick={() => {
-              setRoute("/");
-            }}
-          >
-            Home
-          </Link>
-          <Link
-            className={route === "/gallery" ? "navbar-item is-selected" : "navbar-item"}
-            to="/gallery"
-            onClick={() => {
-              setRoute("/gallery");
-            }}
-          >
-            Gallery
-          </Link>
-          <Link
-            className={route === "/about" ? "navbar-item is-selected" : "navbar-item"}
-            to="/about"
-            onClick={() => {
-              setRoute("/about");
-            }}
-          >
-            About
-          </Link>
-
-          <Link
-            className={route === "/mint" ? "navbar-item is-selected" : "navbar-item"}
-            to="/mint"
-            onClick={() => {
-              setRoute("/mint");
-            }}
-          >
-            Mint
-          </Link>
-          <Link
-            className={route === "/debugcontracts" ? "navbar-item is-selected" : "navbar-item"}
-            to="/debugcontracts"
-            onClick={() => {
-              setRoute("/debugcontracts");
-            }}
-          >
-            Debug
-          </Link>
-        </div>
-
-        <div className="navbar-end">
-          <div className="navbar-item">
-            <div className="buttons">
-              <WalletConnect
-                web3Modal={web3Modal}
-                logout={logoutOfWeb3Modal}
-                connect={loadWeb3Modal}
-                setProvider={setProvider}
-                jwtAuthToken={jwtAuthToken}
-                setJwtAuthToken={setJwtAuthToken}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <WalletConnect
+        web3Modal={web3Modal}
+        logout={logoutOfWeb3Modal}
+        connect={loadWeb3Modal}
+        setProvider={setProvider}
+        jwtAuthToken={jwtAuthToken}
+        setJwtAuthToken={setJwtAuthToken}
+      />
+      <img
+        className="hamburger"
+        alt=""
+        onClick={() => {
+          setExpanded(!expanded);
+        }}
+        src={hamburger}
+      />
     </nav>
   );
 }

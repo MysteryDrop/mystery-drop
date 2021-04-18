@@ -4,7 +4,6 @@ import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
-import "./App.sass";
 import { Alert, List } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -281,88 +280,90 @@ function App(props) {
 
   return (
     <QueryClientProvider client={queryClient}>
-    <div className="App">
-      {/* ✏️ Edit the header and change the title to your project name */}
-      {DEBUG ? networkDisplay : null}
-      <BrowserRouter>
-        <Header
-          loadWeb3Modal={loadWeb3Modal}
-          setProvider={setInjectedProvider}
-          web3Modal={web3Modal}
-          logoutOfWeb3Modal={web3Modal}
-          jwtAuthToken={jwtAuthToken}
-          setJwtAuthToken={setJwtAuthToken}
-        />
+      <div className="App">
+        {/* ✏️ Edit the header and change the title to your project name */}
+        {DEBUG ? networkDisplay : null}
+        <BrowserRouter>
+          <Header
+            loadWeb3Modal={loadWeb3Modal}
+            setProvider={setInjectedProvider}
+            web3Modal={web3Modal}
+            logoutOfWeb3Modal={web3Modal}
+            jwtAuthToken={jwtAuthToken}
+            setJwtAuthToken={setJwtAuthToken}
+          />
 
-        {injectedProvider ? (
-          <Switch>
-            <Route exact path="/">
-              <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-                <List
-                  dataSource={yourDrops}
-                  renderItem={item => {
-                    const id = item.tokenAddress;
-                    console.log({ id });
-                    return (
-                      <List.Item key={id}>
-                        <Purchase
-                          availTokens={item.tokensAvailable}
-                          yourBalance={item.yourBalance}
-                          tokenAddress={item.tokenAddress}
-                          currPrice={item.currentPrice}
-                          tx={tx}
-                          writeContracts={writeContracts}
-                          /* name="YourContract" */
-                          /* signer={userProvider.getSigner()} */
-                          /* provider={localProvider} */
-                          /* address={address} */
-                          /* blockExplorer={blockExplorer} */
-                        />
-                      </List.Item>
-                    );
-                  }}
-                ></List>
-              </div>
-            </Route>
-            <Route path="/gallery">
-              <Gallery
-                tokens={yourVaultHoldings}
-                /* address={address} */
-                /* yourLocalBalance={yourLocalBalance} */
-                /* mainnetProvider={mainnetProvider} */
-                /* price={price} */
-              />
-            </Route>
-            <Route path="/debugcontracts">
-              <Contract
-                name="TokenSale"
-                signer={userProvider.getSigner()}
-                provider={localProvider}
-                address={address}
-                blockExplorer={blockExplorer}
-              />
-              <Contract
-                name="AnyERC20"
-                signer={userProvider.getSigner()}
-                provider={localProvider}
-                address={address}
-                blockExplorer={blockExplorer}
-              />
-            </Route>
-            <Route path="/about">
-              <About />
-            </Route>
-            <Route path="/mint">
-              <Mint provider={userProvider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />
-            </Route>
-          </Switch>
-        ) : (
-          <span>Please connect your wallet</span>
-        )}
-      </BrowserRouter>
+          <div className="main-content-container">
+            {injectedProvider ? (
+              <Switch>
+                <Route exact path="/">
+                  <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+                    <List
+                      dataSource={yourDrops}
+                      renderItem={item => {
+                        const id = item.tokenAddress;
+                        console.log({ id });
+                        return (
+                          <List.Item key={id}>
+                            <Purchase
+                              availTokens={item.tokensAvailable}
+                              yourBalance={item.yourBalance}
+                              tokenAddress={item.tokenAddress}
+                              currPrice={item.currentPrice}
+                              tx={tx}
+                              writeContracts={writeContracts}
+                              /* name="YourContract" */
+                              /* signer={userProvider.getSigner()} */
+                              /* provider={localProvider} */
+                              /* address={address} */
+                              /* blockExplorer={blockExplorer} */
+                            />
+                          </List.Item>
+                        );
+                      }}
+                    ></List>
+                  </div>
+                </Route>
+                <Route path="/gallery">
+                  <Gallery
+                    tokens={yourVaultHoldings}
+                    /* address={address} */
+                    /* yourLocalBalance={yourLocalBalance} */
+                    /* mainnetProvider={mainnetProvider} */
+                    /* price={price} */
+                  />
+                </Route>
+                <Route path="/debugcontracts">
+                  <Contract
+                    name="TokenSale"
+                    signer={userProvider.getSigner()}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                  />
+                  <Contract
+                    name="AnyERC20"
+                    signer={userProvider.getSigner()}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                  />
+                </Route>
+                <Route path="/about">
+                  <About />
+                </Route>
+                <Route path="/mint">
+                  <Mint provider={userProvider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />
+                </Route>
+              </Switch>
+            ) : (
+              <span>Please connect your wallet</span>
+            )}{" "}
+          </div>
+        </BrowserRouter>
 
-      {/* <ThemeSwitch /> */}
-    </div>
+        {/* <ThemeSwitch /> */}
+      </div>
     </QueryClientProvider>
   );
 }
