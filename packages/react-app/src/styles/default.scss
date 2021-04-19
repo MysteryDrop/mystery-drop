@@ -73,6 +73,15 @@ p {
   }
 }
 
+.button-alt {
+  color: $green;
+  border: 1px solid $green;
+  border-radius: 30px;
+  padding: 5px 10px;
+  min-width: 120px;
+}
+
 .main-content-container {
   padding-top: 60px;
+  height: 100vh;
 }

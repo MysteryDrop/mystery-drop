@@ -3,9 +3,8 @@ import { useQueryClient } from "react-query";
 import axios, { AxiosResponse } from "axios";
 import { v4 as uuid } from "uuid";
 
-import { StepIndicator, CollectionUpload, CollectionDetails } from "components";
+import { AuthRequired, StepIndicator, CollectionUpload, CollectionDetails } from "components";
 import "./Mint.scss";
-import MysteryDropAuth from "components/MysteryDropAuth";
 import { logout } from "util/auth";
 import { apiRequest } from "../util/util";
 import Drops from "components/Drops";
@@ -148,6 +147,6 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
       {/* </button> */}
     </div>
   ) : (
-    <MysteryDropAuth provider={provider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />
+    <AuthRequired provider={provider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />
   );
 }

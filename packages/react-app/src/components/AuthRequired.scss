@@ -1,0 +1,28 @@
+@import "styles/default.scss";
+
+.auth-required {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 80%;
+
+  svg {
+    fill: $placeholder;
+    min-width: 65px;
+    min-height: 65px;
+  }
+
+  p {
+    color: $placeholder;
+    font-size: 18px;
+    font-weight: 400;
+    margin: 5px;
+    margin-bottom: 10px;
+  }
+
+  a {
+    width: 150px;
+  }
+}

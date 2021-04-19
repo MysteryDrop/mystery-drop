@@ -26,3 +26,4 @@ export { default as DateTimeInput } from "./DateTimeInput";
 export { default as CollectionUpload } from "./CollectionUpload";
 export { default as CollectionDetails } from "./CollectionDetails";
 export { default as StepIndicator } from "./StepIndicator";
+export { default as AuthRequired } from "./AuthRequired";
