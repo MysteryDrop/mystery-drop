@@ -14,7 +14,7 @@ async function logDrops({ jwtAuthToken }) {
   console.log({ result });
 }
 
-export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks }) {
+export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks, setDropId }) {
   const contentMap = {};
   const numberOfItems = artworks.length;
   const metadata = {
@@ -42,6 +42,8 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
     accessToken: jwtAuthToken,
   });
   console.log(JSON.stringify(initiateResult));
+
+  setDropId(initiateResult.result.dropId)
 
   // Upload preview
   await axios.put(initiateResult.result.dropPreviewUrl, bannerImg.imageData, {
@@ -71,6 +73,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   const [title, setTitle] = useState();
   const [description, setDescription] = useState();
   const [dropDate, setDropDate] = useState();
+  const [dropId, setDropId] = useState();
   const [price, setPrice] = useState();
   const queryClient = useQueryClient();
 
@@ -97,7 +100,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
         2,
       ),
     );
-    await uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks });
+    await uploadDrop({ jwtAuthToken, bannerImg, title, description, dropDate, artworks, setDropId });
     queryClient.invalidateQueries("userDrops");
     resetInputs();
   };
@@ -142,7 +145,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
           <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary">
             Logout
           </button>
-          <Drops provider={provider} jwtAuthToken={jwtAuthToken} />
+          <Drops provider={provider} jwtAuthToken={jwtAuthToken} dropId={dropId}/>
         </>
       )}
       {/* <button onClick={submit} className="submit button is-primary"> */}

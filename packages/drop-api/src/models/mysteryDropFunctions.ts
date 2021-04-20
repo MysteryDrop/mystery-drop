@@ -138,17 +138,31 @@ export const addContentToDrop = async (params: AddContentToDropParams) => {
 }
 
 // Get drop
-export const getDropsForUser = (params: { publicAddress: string }) => {
-  const queryParams: DynamoDB.DocumentClient.QueryInput = {
-    TableName: tableName,
-    KeyConditionExpression:
-      '#pk = :primary_key and begins_with(#sk, :drop_prefix)',
-    ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
-    ExpressionAttributeValues: {
-      ':primary_key': `USER#${params.publicAddress}`,
-      ':drop_prefix': '#DROP#',
-    },
-  }
+export const getDropsForUser = (params: {
+  publicAddress: string
+  dropId?: string
+}) => {
+  const queryParams: DynamoDB.DocumentClient.QueryInput = params.dropId
+    ? {
+        TableName: tableName,
+        KeyConditionExpression:
+          '#pk = :primary_key and #sk = :sort_key',
+        ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
+        ExpressionAttributeValues: {
+          ':primary_key': `USER#${params.publicAddress}`,
+          ':sort_key': `#DROP#${params.dropId}`,
+        },
+      }
+    : {
+        TableName: tableName,
+        KeyConditionExpression:
+          '#pk = :primary_key and begins_with(#sk, :drop_prefix)',
+        ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
+        ExpressionAttributeValues: {
+          ':primary_key': `USER#${params.publicAddress}`,
+          ':drop_prefix': '#DROP#',
+        },
+      }
   console.log({ queryParams })
   return documentClient
     .query(queryParams)
@@ -160,7 +174,7 @@ export interface CreateContentParams {
   dropId: string
   contentId: string
   creator: string
-  metadata: {[key: string]: any}
+  metadata: { [key: string]: any }
   key: string
 }
 // Create content entry
@@ -182,7 +196,7 @@ export const createContent = async (params: CreateContentParams) => {
       ':ca': new Date().toISOString(),
       ':c': params.creator,
       ':k': params.key,
-      ':m': params.metadata
+      ':m': params.metadata,
     },
   }
 
@@ -192,7 +206,7 @@ export const createContent = async (params: CreateContentParams) => {
     .then((data) => data)
 }
 
-export const getContent = (params: { dropId: string, contentId: string }) => {
+export const getContent = (params: { dropId: string; contentId: string }) => {
   const queryParams: DynamoDB.DocumentClient.GetItemInput = {
     TableName: tableName,
     Key: {
@@ -209,14 +223,16 @@ export const getContent = (params: { dropId: string, contentId: string }) => {
 }
 
 interface AddTokenDataToContentParams {
-  dropId: string,
-  tokenId: string,
-  contentId: string,
-  tokenMetadata: string,
-  tokenUri: string,
+  dropId: string
+  tokenId: string
+  contentId: string
+  tokenMetadata: string
+  tokenUri: string
 }
 
-export const addTokenDataToContent = async (params: AddTokenDataToContentParams) => {
+export const addTokenDataToContent = async (
+  params: AddTokenDataToContentParams
+) => {
   const queryParams: DynamoDB.DocumentClient.UpdateItemInput = {
     TableName: tableName,
     Key: {
@@ -244,7 +260,10 @@ export const addTokenDataToContent = async (params: AddTokenDataToContentParams)
     .then((data) => data)
 }
 
-export const getTokenForMinting = (params: { dropId: string, contentId: string }) => {
+export const getTokenForMinting = (params: {
+  dropId: string
+  contentId: string
+}) => {
   const queryParams: DynamoDB.DocumentClient.GetItemInput = {
     TableName: tableName,
     Key: {

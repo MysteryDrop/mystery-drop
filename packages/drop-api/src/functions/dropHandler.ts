@@ -154,9 +154,13 @@ export async function getDrops(
   event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
   const user = event.requestContext.authorizer.lambda.user
+  const parameters = event.queryStringParameters
+
+  // dropId may be undefined. If undefined endpoint returns all drops for user
+  const dropId = parameters ? parameters['dropId'] : undefined
 
   try {
-    const drops = await getDropsView(user, client)
+    const drops = await getDropsView(user, client, dropId)
 
     return apiResponses._200({ drops })
   } catch (e) {

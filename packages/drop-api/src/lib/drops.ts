@@ -27,8 +27,8 @@ interface GetDropsOutputProcessing extends GetDropsOutputBase {
 
 type GetDropsOutput = GetDropsOutputMintable | GetDropsOutputProcessing
 
-export const getDropsView = async (user: string, client: S3Client) => {
-  const drops = await getDropsForUser({ publicAddress: user })
+export const getDropsView = async (user: string, client: S3Client, dropId?: string) => {
+  const drops = await getDropsForUser({ publicAddress: user, dropId })
   console.log({ drops })
 
   const dropsToReturn: GetDropsOutput[] = []

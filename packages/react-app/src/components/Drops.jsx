@@ -47,9 +47,9 @@ async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   console.log({ mintResult });
 }
 
-export default function Drops({ jwtAuthToken, provider }) {
+export default function Drops({ jwtAuthToken, provider, dropId }) {
   console.log({ jwtAuthToken });
-  const query = () => apiRequest({ path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken });
+  const query = () => apiRequest({ path: `v1/getDrops?dropId=${dropId}`, method: "GET", accessToken: jwtAuthToken });
   const { isLoading, error, data, isFetching } = useQuery(`userDrops`, query, { refetchInterval: 3000 });
   if (isLoading) return <span>Loading</span>;
   if (error) return <span>`An error has occurred: ${error}`</span>;
