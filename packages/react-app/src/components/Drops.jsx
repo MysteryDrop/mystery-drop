@@ -47,14 +47,14 @@ async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   console.log({ mintResult });
 }
 
-export default function Drops({ jwtAuthToken, provider, dropId }) {
+export default function Drops({ jwtAuthToken, provider, mainnetProvider, dropId }) {
   console.log({ jwtAuthToken });
   const query = () => apiRequest({ path: `v1/getDrops?dropId=${dropId}`, method: "GET", accessToken: jwtAuthToken });
   const { isLoading, error, data, isFetching } = useQuery(`userDrops`, query, { refetchInterval: 3000 });
 
   const defaultDesc = "Description of the collection Item, this is a description placeholder.";
   const defaultPrice = 1.21;
-  const usdPrice = useExchangePrice(provider._network, provider, 1000);
+  const usdPrice = useExchangePrice(provider._network, mainnetProvider, 1000);
 
   if (isLoading) return <span>Loading</span>;
   if (error) return <span>`An error has occurred: ${error}`</span>;

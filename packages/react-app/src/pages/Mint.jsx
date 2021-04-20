@@ -66,7 +66,7 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
   }
 }
 
-export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
+export default function Mint({ provider, mainnetProvider, jwtAuthToken, setJwtAuthToken }) {
   const [step, setStep] = useState(0);
   const [artworks, setArtworks] = useState([]);
   const [bannerImg, setBannerImg] = useState();
@@ -145,7 +145,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
           {/* <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary"> */}
           {/*   Logout */}
           {/* </button> */}
-          <Drops provider={provider} jwtAuthToken={jwtAuthToken} dropId={dropId} />
+          <Drops provider={provider} mainnetProvider={mainnetProvider} jwtAuthToken={jwtAuthToken} dropId={dropId} />
         </>
       )}
       {/* <button onClick={submit} className="submit button is-primary"> */}

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
-import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import { InfuraProvider, JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
 import { Alert, List } from "antd";
 import Web3Modal from "web3modal";
@@ -61,7 +61,7 @@ const DEBUG = false;
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 // const mainnetProvider = getDefaultProvider("mainnet", { infura: INFURA_ID, etherscan: ETHERSCAN_KEY, quorum: 1 });
-// const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
+const mainnetProvider = new InfuraProvider("mainnet", INFURA_ID);
 //
 // attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
 // const scaffoldEthProvider = new JsonRpcProvider("https://rpc.scaffoldeth.io:48544");
@@ -353,7 +353,12 @@ function App(props) {
                   <About />
                 </Route>
                 <Route path="/mint">
-                  <Mint provider={userProvider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />
+                  <Mint
+                    provider={userProvider}
+                    mainnetProvider={mainnetProvider}
+                    jwtAuthToken={jwtAuthToken}
+                    setJwtAuthToken={setJwtAuthToken}
+                  />
                 </Route>
               </Switch>
             ) : (
