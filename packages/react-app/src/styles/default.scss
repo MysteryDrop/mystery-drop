@@ -84,6 +84,17 @@ p {
 
   &:hover {
     color: $green;
+    cursor: pointer;
+  }
+
+  &:disabled {
+    color: $placeholder;
+    border-color: $placeholder;
+
+    &:hover {
+      color: $placeholder;
+      cursor: default;
+    }
   }
 }
 

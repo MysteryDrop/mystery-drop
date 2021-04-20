@@ -67,13 +67,13 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
 }
 
 export default function Mint({ provider, mainnetProvider, jwtAuthToken, setJwtAuthToken }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(2);
   const [artworks, setArtworks] = useState([]);
   const [bannerImg, setBannerImg] = useState();
   const [title, setTitle] = useState();
   const [description, setDescription] = useState();
   const [dropDate, setDropDate] = useState();
-  const [dropId, setDropId] = useState();
+  const [dropId, setDropId] = useState("e6754998-0ba1-4100-a15f-aa766cdfe043");
   const [price, setPrice] = useState();
   const queryClient = useQueryClient();
 

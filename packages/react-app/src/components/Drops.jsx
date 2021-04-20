@@ -73,14 +73,21 @@ export default function Drops({ jwtAuthToken, provider, mainnetProvider, dropId 
                   Ξ {defaultPrice} <span className="alt">${(usdPrice * defaultPrice).toFixed(2)}</span>
                 </h4>
                 <p>{content.metadata.description}</p>
-                <button
-                  onClick={() =>
-                    mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
-                  }
-                  className="button-alt"
-                >
-                  Mint Item
-                </button>
+                {content.status === "MINTED" ? (
+                  <button disabled={true} className="button-alt">
+                    Minted
+                  </button>
+                ) : (
+                  <button
+                    disabled={content.status === "MINTED"}
+                    onClick={() =>
+                      mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
+                    }
+                    className="button-alt"
+                  >
+                    {content.status === "MINTED" ? "Minted" : "Mint Item"}
+                  </button>
+                )}
               </div>
             </div>
           ))}
