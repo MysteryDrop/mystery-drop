@@ -56,7 +56,7 @@ export default function Drops({ jwtAuthToken, provider, mainnetProvider, dropId 
   const defaultPrice = 1.21;
   const usdPrice = useExchangePrice(provider._network, mainnetProvider, 1000);
 
-  if (isLoading) return <span>Loading</span>;
+  if (isLoading || (isFetching && !data)) return <div className="loader"></div>;
   if (error) return <span>`An error has occurred: ${error}`</span>;
   console.log({ data });
 
@@ -68,11 +68,11 @@ export default function Drops({ jwtAuthToken, provider, mainnetProvider, dropId 
             <div className="drop-item" key={content.contentId}>
               <img alt="" src={drop.dropPreviewUrl} />
               <div className="info-container">
-                <h2>{content.contentTitle}</h2>
+                <h2>{content.metadata.title}</h2>
                 <h4>
                   Ξ {defaultPrice} <span className="alt">${(usdPrice * defaultPrice).toFixed(2)}</span>
                 </h4>
-                <p>{defaultDesc}</p>
+                <p>{content.metadata.description}</p>
                 <button
                   onClick={() =>
                     mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })

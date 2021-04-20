@@ -31,6 +31,11 @@
           font-size: 24px;
           font-weight: 700;
           margin: 0;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
 
         h4 {
@@ -43,7 +48,12 @@
 
         p {
           font-weight: 500;
+          overflow: hidden;
           color: $placeholder;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
         }
 
         .button-alt {
