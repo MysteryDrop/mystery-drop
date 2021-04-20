@@ -1,233 +1,79 @@
 @import "styles/default.scss";
 
-.create-collection {
-  margin: auto;
-  width: $medium;
-  max-width: 90%;
+#drops {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
 
-  .multi-line {
-    width: 100%;
-
-    textarea {
-      width: 100%;
-    }
-  }
-
-  .single-line {
-    width: 40%;
-
-    input {
-      width: 100%;
-    }
-  }
-
-  .file-input-container {
-    width: 100%;
-
-    label {
-      width: 100%;
-    }
-  }
-
-  .artworks {
-    width: 100%;
-    position: relative;
-
-    .artwork-card-container {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      column-gap: 20px;
-      row-gap: 20px;
+  .collection {
+    .drop-item {
       margin: 10px 0;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      text-align: left;
 
-      .card {
-        height: 0;
-        padding-top: 160%;
+      img {
+        width: 190px;
+        height: 160px;
         border-radius: 10px;
-        background: rgba(0, 0, 0, 0);
-        box-shadow: none;
+        object-fit: cover;
+        filter: drop-shadow(0px 4px 15px rgba(0, 0, 0, 0.25));
       }
 
-      .art-card {
-        border-radius: 10px;
-        overflow: hidden;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        left: 0;
+      .info-container {
+        margin-left: 20px;
         display: flex;
         flex-direction: column;
-        background: white;
-        filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
+        align-items: left;
 
-        &.error {
-          border: 2px solid $red;
+        h2 {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0;
         }
 
-        img {
-          flex: 3;
-          object-fit: cover;
+        h4 {
+          font-size: 14px;
         }
 
-        .action-icon {
-          position: absolute;
-          top: 60%;
-          width: 40px;
-          height: 40px;
-          transform: translateY(-50%);
-          right: 10px;
-          border-radius: 50%;
-          background: white;
-          filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          &:hover {
-            cursor: pointer;
-          }
-
-          &.editing {
-            border: 2px solid $red;
-          }
-        }
-
-        svg {
-          object-fit: contain;
-        }
-
-        .info-container {
-          flex: 2;
-          text-align: left;
-
-          h4 {
-            margin: 20px;
-            margin-bottom: 5px;
-            font-weight: 700;
-          }
-
-          p {
-            margin: 20px;
-            margin-top: 0;
-            font-weight: 500;
-          }
-        }
-      }
-
-      .new-card {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        background-color: $input-bg;
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-
-        &.error {
-          background-color: $red-bg;
-        }
-
-        &:hover {
-          cursor: pointer;
-        }
-
-        svg {
-          margin-bottom: 10px;
+        .alt {
+          color: $placeholder;
         }
 
         p {
+          font-weight: 500;
           color: $placeholder;
         }
-      }
 
-      .error-message {
-        color: $red;
-        font-size: 12px;
-        font-weight: 400;
-        text-align: left;
-        margin: 5px;
-      }
-    }
-
-    .modal-wrapper {
-      position: absolute;
-      z-index: 10;
-      width: 100%;
-      padding-bottom: 20px;
-      overflow: hidden;
-      max-height: 100vh;
-      filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
-      transition: ease-in-out 100ms max-height;
-
-      &.collapsed {
-        max-height: 0px;
-        padding: 0px;
-      }
-
-      .modal-indicator {
-        position: absolute;
-        top: 0;
-        fill: red;
-        transform: translateX(-50%);
-        margin-left: (-100%/3);
-      }
-
-      .edit-modal {
-        position: relative;
-        padding: 40px;
-        margin-top: 20px;
-        box-sizing: border-box;
-        background-color: white;
-        border-radius: 10px;
-
-        .multi-line {
-          width: 100%;
-        }
-
-        .exit {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-
-          &:hover {
-            cursor: pointer;
-          }
+        .button-alt {
+          width: 50%;
         }
       }
     }
-  }
-
-  .submit {
-    margin-top: 40px;
-    width: 50%;
-    align-self: center;
-    filter: drop-shadow(0px 1px 15px rgba(0, 0, 0, 0.1));
   }
 }
 
-@media only screen and (max-width: 500px) {
-  .create-collection {
-    .artworks {
-      .artwork-card-container {
-        grid-template-columns: 1fr 1fr;
+@media only screen and (max-width: $small) {
+  #drops {
+    .collection {
+      .drop-item {
+        flex-direction: column;
+
+        img {
+          width: 100%;
+          flex: 1;
+        }
+
+        .info-container {
+          flex: 1;
+          margin: 10px;
+        }
       }
-    }
 
-    .single-line {
-      width: 100%;
-    }
-
-    .submit {
-      width: 100%;
+      .button-alt {
+        margin: auto;
+      }
     }
   }
 }

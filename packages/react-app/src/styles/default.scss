@@ -9,6 +9,7 @@ $placeholder: #888;
 
 $desktop: 1440px;
 $medium: 720px;
+$small: 500px;
 
 * {
   font-family: "Montserrat", sans-serif;
@@ -79,6 +80,7 @@ p {
   border-radius: 30px;
   padding: 5px 10px;
   min-width: 120px;
+  background: white;
 
   &:hover {
     color: $green;

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 
 import "./Drops.scss";
 import { apiRequest } from "../util/util";
 import { createLazyMintForm, signLazyMintMessage } from "util/signtypedData/lazyMint";
+import { useExchangePrice } from "hooks";
 
 async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   const result = await apiRequest({
@@ -16,7 +17,6 @@ async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   const signer = provider.getSigner();
   const address = await signer.getAddress();
   console.log({ address });
-
 
   const lazyMintForm = createLazyMintForm(
     address,
@@ -51,36 +51,44 @@ export default function Drops({ jwtAuthToken, provider, dropId }) {
   console.log({ jwtAuthToken });
   const query = () => apiRequest({ path: `v1/getDrops?dropId=${dropId}`, method: "GET", accessToken: jwtAuthToken });
   const { isLoading, error, data, isFetching } = useQuery(`userDrops`, query, { refetchInterval: 3000 });
+
+  const defaultDesc = "Description of the collection Item, this is a description placeholder.";
+  const defaultPrice = 1.21;
+  const usdPrice = useExchangePrice(provider._network, provider, 1000);
+
   if (isLoading) return <span>Loading</span>;
   if (error) return <span>`An error has occurred: ${error}`</span>;
   console.log({ data });
 
   return (
     <div id="drops">
-      {data && data.drops &&
-        data.drops.map(drop => (
-          <div key={drop.dropId}>
-            <span>test</span>
-            <img alt="" src={drop.dropPreviewUrl} />
-            {drop.content &&
-              drop.content.map(content => (
-                <div key={content.contentId}>
-                  <span>{content.contentTitle}</span>
-                  <button
-                    onClick={() =>
-                      mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
-                    }
-                    className="button is-primary"
-                  >
-                    Mint Item
-                  </button>
-                </div>
-              ))}
-            <button onClick={() => console.log({ jwtAuthToken })} className="button is-primary">
-              Mint Collection
-            </button>
-          </div>
-        ))}
+      {data?.drops?.map(drop => (
+        <div className="collection" key={drop.dropId}>
+          {drop.content?.map(content => (
+            <div className="drop-item" key={content.contentId}>
+              <img alt="" src={drop.dropPreviewUrl} />
+              <div className="info-container">
+                <h2>{content.contentTitle}</h2>
+                <h4>
+                  Ξ {defaultPrice} <span className="alt">${(usdPrice * defaultPrice).toFixed(2)}</span>
+                </h4>
+                <p>{defaultDesc}</p>
+                <button
+                  onClick={() =>
+                    mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
+                  }
+                  className="button-alt"
+                >
+                  Mint Item
+                </button>
+              </div>
+            </div>
+          ))}
+          <button onClick={() => console.log({ jwtAuthToken })} className="button is-primary">
+            Finish
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
