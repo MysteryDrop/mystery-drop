@@ -71,6 +71,7 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
   const [title, setTitle] = useState();
   const [description, setDescription] = useState();
   const [dropDate, setDropDate] = useState();
+  const [price, setPrice] = useState();
   const queryClient = useQueryClient();
 
   const resetInputs = () => {
@@ -123,6 +124,8 @@ export default function Mint({ provider, jwtAuthToken, setJwtAuthToken }) {
         <CollectionDetails
           dropDate={dropDate}
           setDropDate={setDropDate}
+          price={price}
+          setPrice={setPrice}
           goBack={() => {
             setStep(step - 1);
           }}

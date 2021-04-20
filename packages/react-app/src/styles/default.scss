@@ -79,6 +79,10 @@ p {
   border-radius: 30px;
   padding: 5px 10px;
   min-width: 120px;
+
+  &:hover {
+    color: $green;
+  }
 }
 
 .main-content-container {

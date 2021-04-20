@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { DateTimeInput } from "components";
+import { DateTimeInput, PriceInput } from "components";
 
-export default function CollectionDetails({ dropDate, setDropDate, onSubmit, goBack }) {
+const MAX_PIECE_PRICE = 5;
+
+export default function CollectionDetails({ dropDate, setDropDate, price, setPrice, onSubmit, goBack }) {
+  useEffect(() => {
+    console.log("INPUT STATE: " + price);
+  }, [price]);
+
   // Form Validation
   const [dateError, setDateError] = useState();
+  const [priceError, setPriceError] = useState();
 
   const ensureValid = () => {
     let errors = false;
@@ -15,6 +22,13 @@ export default function CollectionDetails({ dropDate, setDropDate, onSubmit, goB
       setDateError("Drop Date Must Be In The Future");
       errors = true;
     }
+    if (!price || price === "") {
+      setPriceError("Piece Price Required");
+      errors = true;
+    } else if (parseFloat(price) > MAX_PIECE_PRICE) {
+      setPriceError("Piece Price Must Be Under 5 ETH");
+      errors = true;
+    }
     return errors;
   };
 
@@ -24,6 +38,12 @@ export default function CollectionDetails({ dropDate, setDropDate, onSubmit, goB
       setDateError(null);
     }
   }, [dropDate]);
+
+  useEffect(() => {
+    if (price && parseFloat(price) < MAX_PIECE_PRICE) {
+      setPriceError(null);
+    }
+  }, [price]);
 
   const submit = () => {
     const errors = ensureValid();
@@ -42,6 +62,7 @@ export default function CollectionDetails({ dropDate, setDropDate, onSubmit, goB
           setDropDate(event.nativeEvent.target.value);
         }}
       />
+      <PriceInput label="Piece Price" error={priceError} onChange={setPrice} value={price} />
       <div className="button-container">
         <button onClick={goBack} className="back button">
           Back
