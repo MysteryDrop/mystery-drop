@@ -185,18 +185,22 @@ export const createContent = async (params: CreateContentParams) => {
       PK: `DROP#${params.dropId}`,
       SK: `#CONTENT#${params.contentId}`,
     },
-    UpdateExpression: 'set #CA = :ca, #C = :c, #K = :k, #M = :m',
+    UpdateExpression: 'set #CA = :ca, #UA = :ua, #C = :c, #K = :k, #M = :m, #ST = :st',
     ExpressionAttributeNames: {
       '#CA': 'CreatedAt',
+      '#UA': 'UpdatedAt',
       '#C': 'Creator',
       '#K': 'S3ObjectKey',
       '#M': 'Metadata',
+      '#ST': 'Status',
     },
     ExpressionAttributeValues: {
       ':ca': new Date().toISOString(),
+      ':ua': new Date().toISOString(),
       ':c': params.creator,
       ':k': params.key,
       ':m': params.metadata,
+      ':st': 'PROCESSED',
     },
   }
 
@@ -206,21 +210,39 @@ export const createContent = async (params: CreateContentParams) => {
     .then((data) => data)
 }
 
-export const getContent = (params: { dropId: string; contentId: string }) => {
-  const queryParams: DynamoDB.DocumentClient.GetItemInput = {
-    TableName: tableName,
-    Key: {
-      PK: `DROP#${params.dropId}`,
-      SK: `#CONTENT#${params.contentId}`,
-    },
-    ProjectionExpression: 'Creator, S3ObjectKey, Metadata, TokenId',
-  }
+// Get drop
+export const getContent = (params: {
+  dropId: string
+  contentId?: string
+}) => {
+  const queryParams: DynamoDB.DocumentClient.QueryInput = params.contentId
+    ? {
+        TableName: tableName,
+        KeyConditionExpression:
+          '#pk = :primary_key and #sk = :sort_key',
+        ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
+        ExpressionAttributeValues: {
+          ':primary_key': `DROP#${params.dropId}`,
+          ':sort_key': `#CONTENT#${params.contentId}`,
+        },
+      }
+    : {
+        TableName: tableName,
+        KeyConditionExpression:
+          '#pk = :primary_key and begins_with(#sk, :content_prefix)',
+        ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
+        ExpressionAttributeValues: {
+          ':primary_key': `DROP#${params.dropId}`,
+          ':content_prefix': '#CONTENT#',
+        },
+      }
   console.log({ queryParams })
   return documentClient
-    .get(queryParams)
+    .query(queryParams)
     .promise()
-    .then((data) => data.Item)
+    .then((data) => data.Items)
 }
+
 
 interface AddTokenDataToContentParams {
   dropId: string
@@ -239,18 +261,20 @@ export const addTokenDataToContent = async (
       PK: `DROP#${params.dropId}`,
       SK: `#CONTENT#${params.contentId}`,
     },
-    UpdateExpression: 'set #UA = :ua, #TM = :tm, #TU = :tu, #TI = :ti',
+    UpdateExpression: 'set #UA = :ua, #TM = :tm, #TU = :tu, #TI = :ti, #ST = :st',
     ExpressionAttributeNames: {
       '#UA': 'UpdatedAt',
       '#TM': 'TokenMetadata',
       '#TI': 'TokenId',
       '#TU': 'TokenUri',
+      '#ST': 'Status',
     },
     ExpressionAttributeValues: {
       ':ua': new Date().toISOString(),
       ':tm': params.tokenMetadata,
       ':ti': params.tokenId,
       ':tu': params.tokenUri,
+      ':st': 'MINTABLE'
     },
   }
 
@@ -270,11 +294,45 @@ export const getTokenForMinting = (params: {
       PK: `DROP#${params.dropId}`,
       SK: `#CONTENT#${params.contentId}`,
     },
-    ProjectionExpression: 'Creator, TokenId, TokenUri',
+    ProjectionExpression: 'Creator, TokenId, TokenUri, #ST',
+    ExpressionAttributeNames: {
+      '#ST': 'Status',
+    },
   }
   console.log({ queryParams })
   return documentClient
     .get(queryParams)
     .promise()
     .then((data) => data.Item)
+}
+
+export const addMintDataToContent = (params: {
+  dropId: string
+  contentId: string
+  tokenData: string
+}) => {
+  const queryParams: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `DROP#${params.dropId}`,
+      SK: `#CONTENT#${params.contentId}`,
+    },
+    UpdateExpression: 'set #UA = :ua, #TD = :td, #ST = :st',
+    ExpressionAttributeNames: {
+      '#UA': 'UpdatedAt',
+      '#TD': 'TokenData',
+      '#ST': 'Status',
+    },
+    ExpressionAttributeValues: {
+      ':ua': new Date().toISOString(),
+      ':td': params.tokenData,
+      ':st': 'MINTED'
+    },
+  }
+
+  return documentClient
+    .update(queryParams)
+    .promise()
+    .then((data) => data)
+
 }

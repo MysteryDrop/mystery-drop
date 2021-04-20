@@ -2,8 +2,10 @@ import * as hash from 'ipfs-only-hash'
 import axios from 'axios'
 
 import {
+  addMintDataToContent,
   addTokenDataToContent,
   getContent,
+  getTokenForMinting,
 } from '../models/mysteryDropFunctions'
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
 
@@ -64,7 +66,9 @@ export const preprocessContent = async (
   user: string,
   client: S3Client
 ) => {
-  const contentItem = await getContent({ dropId, contentId })
+  const contentItems = await getContent({ dropId, contentId })
+  if (contentItems.length === 0) throw new Error ('content not found')
+  const contentItem = contentItems[0]
 
   // Check if authorized to mint
   if (contentItem.Creator.toLowerCase() !== user.toLowerCase())
@@ -104,3 +108,57 @@ export const preprocessContent = async (
     chainId: process.env.CHAIN_ID,
   }
 }
+
+export const submitLazyMint = async (
+  dropId: string,
+  contentId: string,
+  user: string,
+  signature: string
+) => {
+  const contentItem = await getTokenForMinting({ dropId, contentId })
+
+  if (contentItem.Status !== 'MINTABLE') throw new Error(`Content not mintable, has status: ${contentItem.Status}`)
+  const creators = [{ account: user, value: 10000 }]
+
+  const url = `${process.env.RARIBLE_API_URL_BASE}v0.1/ethereum/nft/mints`
+
+  const result = await axios.post(
+    url,
+    {
+      '@type': 'ERC721',
+      token: process.env.TOKEN_CONTRACT_ADDRESS,
+      tokenId: contentItem.TokenId,
+      uri: contentItem.TokenUri,
+      creators,
+      royalties: [],
+      signatures: [signature],
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+
+    if (result.status !== 200) throw new Error('failed to mint with Rarible API')
+
+    const tokenData = result.data
+
+    await addMintDataToContent({dropId, contentId, tokenData: JSON.stringify(tokenData)})
+    return tokenData
+
+}
+
+
+// "tokenData": {
+//   "id": "0x6ede7f3c26975aad32a475e1021d8f6f39c89d82:0x83bc06079538264cc18829c5534387c69820a4e6000000000000000000000010",
+//   "token": "0x6ede7f3c26975aad32a475e1021d8f6f39c89d82",
+//   "tokenId": "0x83bc06079538264cc18829c5534387c69820a4e6000000000000000000000010",
+//   "unlockable": false,
+//   "supply": 1,
+//   "lazySupply": 1,
+//   "owners": [
+//     "0x83bc06079538264cc18829c5534387c69820a4e6"
+//   ],
+//   "royalties": []
+// }

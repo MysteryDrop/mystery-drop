@@ -143,6 +143,8 @@ functions:
     handler: src/functions/dropHandler.getDrops
     environment:
       BUCKET_NAME: ${self:custom.bucketName}
+      TOKEN_CONTRACT_ADDRESS : ${env:TOKEN_CONTRACT_ADDRESS}
+      RARIBLE_API_URL_BASE : ${env:RARIBLE_API_URL_BASE}
     events:
       - httpApi:
           path: /v1/getDrops

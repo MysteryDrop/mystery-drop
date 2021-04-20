@@ -13,7 +13,7 @@ import {
   processUploadedContent,
 } from '../lib/upload'
 import { getDropsView } from '../lib/drops'
-import { preprocessContent } from 'src/lib/mint'
+import { preprocessContent, submitLazyMint } from 'src/lib/mint'
 
 const MAX_ITEMS_IN_COLLECTION = 6
 
@@ -195,32 +195,8 @@ export async function lazyMint(
   const { contentId, dropId, signature } = JSON.parse(event.body)
 
   try {
-    const contentItem = await getTokenForMinting({ dropId, contentId })
-  const creators = [{ account: user, value: 10000 }]
 
-  const url = `${process.env.RARIBLE_API_URL_BASE}v0.1/ethereum/nft/mints`
-
-  const result = await axios.post(
-    url,
-    {
-      '@type': 'ERC721',
-      token: process.env.TOKEN_CONTRACT_ADDRESS,
-      tokenId: contentItem.TokenId,
-      uri: contentItem.TokenUri,
-      creators,
-      royalties: [],
-      signatures: [signature],
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-  )
-
-    if (result.status !== 200) throw new Error('failed to mint with Rarible API')
-
-    const tokenData = result.data
+    const tokenData = await submitLazyMint(dropId, contentId, user, signature)
 
     return apiResponses._200({ success: true, tokenData })
   } catch (e) {
