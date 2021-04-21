@@ -25,6 +25,8 @@ export { default as FileInput } from "./FileInput";
 export { default as DateTimeInput } from "./DateTimeInput";
 export { default as CollectionUpload } from "./CollectionUpload";
 export { default as CollectionDetails } from "./CollectionDetails";
+export { default as CollectionMint } from "./CollectionMint";
 export { default as StepIndicator } from "./StepIndicator";
 export { default as AuthRequired } from "./AuthRequired";
 export { default as PriceInput } from "./PriceInput";
+export { default as DropPreview } from "./DropPreview";

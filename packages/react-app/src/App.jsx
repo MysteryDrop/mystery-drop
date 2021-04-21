@@ -17,7 +17,7 @@ import {
   useExternalContractLoader,
 } from "./hooks";
 import { Header, Contract, About, Gallery, Purchase } from "components";
-import { Mint } from "./pages";
+import { Mint, Drops } from "./pages";
 import { Transactor } from "./helpers";
 import { formatEther } from "@ethersproject/units";
 //import Hints from "./Hints";
@@ -360,10 +360,18 @@ function App(props) {
                     setJwtAuthToken={setJwtAuthToken}
                   />
                 </Route>
+                <Route path="/mydrops">
+                  <Drops
+                    provider={userProvider}
+                    mainnetProvider={mainnetProvider}
+                    jwtAuthToken={jwtAuthToken}
+                    setJwtAuthToken={setJwtAuthToken}
+                  />
+                </Route>
               </Switch>
             ) : (
               <span>Please connect your wallet</span>
-            )}{" "}
+            )}
           </div>
         </BrowserRouter>
 

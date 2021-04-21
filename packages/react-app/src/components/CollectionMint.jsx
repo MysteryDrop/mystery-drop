@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 
-import "./Drops.scss";
+import "./CollectionMint.scss";
 import { apiRequest } from "../util/util";
+import { DropPreview } from "components";
 import { createLazyMintForm, signLazyMintMessage } from "util/signtypedData/lazyMint";
 import { useExchangePrice } from "hooks";
 
@@ -65,31 +66,17 @@ export default function Drops({ jwtAuthToken, provider, mainnetProvider, dropId 
       {data?.drops?.map(drop => (
         <div className="collection" key={drop.dropId}>
           {drop.content?.map(content => (
-            <div className="drop-item" key={content.contentId}>
-              <img alt="" src={drop.dropPreviewUrl} />
-              <div className="info-container">
-                <h2>{content.metadata.title}</h2>
-                <h4>
-                  Ξ {defaultPrice} <span className="alt">${(usdPrice * defaultPrice).toFixed(2)}</span>
-                </h4>
-                <p>{content.metadata.description}</p>
-                {content.status === "MINTED" ? (
-                  <button disabled={true} className="button-alt">
-                    Minted
-                  </button>
-                ) : (
-                  <button
-                    disabled={content.status === "MINTED"}
-                    onClick={() =>
-                      mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
-                    }
-                    className="button-alt"
-                  >
-                    {content.status === "MINTED" ? "Minted" : "Mint Item"}
-                  </button>
-                )}
-              </div>
-            </div>
+            <DropPreview
+              key={content.contentId}
+              previewImg={content.contentUrl}
+              title={content.metadata.title}
+              subtitle={`Ξ ${defaultPrice}`}
+              altSubtitle={`$${(usdPrice * defaultPrice).toFixed(2)}`}
+              description={content.metadata.description}
+              disabled={content.status === "MINTED"}
+              prompt={content.status === "MINTED" ? "Minted" : "Mint"}
+              action={() => mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })}
+            />
           ))}
           <button onClick={() => console.log({ jwtAuthToken })} className="button is-primary">
             Finish

@@ -1,0 +1,31 @@
+@import "styles/default.scss";
+
+#drops {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media only screen and (max-width: $small) {
+  #drops {
+    .collection {
+      .drop-item {
+        flex-direction: column;
+
+        img {
+          width: 100%;
+          flex: 1;
+        }
+
+        .info-container {
+          flex: 1;
+          margin: 10px;
+        }
+      }
+
+      .button-alt {
+        margin: auto;
+      }
+    }
+  }
+}

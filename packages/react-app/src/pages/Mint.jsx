@@ -7,7 +7,7 @@ import { AuthRequired, StepIndicator, CollectionUpload, CollectionDetails } from
 import "./Mint.scss";
 import { logout } from "util/auth";
 import { apiRequest } from "../util/util";
-import Drops from "components/Drops";
+import { CollectionMint } from "components";
 
 async function logDrops({ jwtAuthToken }) {
   const result = await apiRequest({ path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken });
@@ -67,13 +67,13 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
 }
 
 export default function Mint({ provider, mainnetProvider, jwtAuthToken, setJwtAuthToken }) {
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(0);
   const [artworks, setArtworks] = useState([]);
   const [bannerImg, setBannerImg] = useState();
   const [title, setTitle] = useState();
   const [description, setDescription] = useState();
   const [dropDate, setDropDate] = useState();
-  const [dropId, setDropId] = useState("e6754998-0ba1-4100-a15f-aa766cdfe043");
+  const [dropId, setDropId] = useState();
   const [price, setPrice] = useState();
   const queryClient = useQueryClient();
 
@@ -145,7 +145,12 @@ export default function Mint({ provider, mainnetProvider, jwtAuthToken, setJwtAu
           {/* <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary"> */}
           {/*   Logout */}
           {/* </button> */}
-          <Drops provider={provider} mainnetProvider={mainnetProvider} jwtAuthToken={jwtAuthToken} dropId={dropId} />
+          <CollectionMint
+            provider={provider}
+            mainnetProvider={mainnetProvider}
+            jwtAuthToken={jwtAuthToken}
+            dropId={dropId}
+          />
         </>
       )}
       {/* <button onClick={submit} className="submit button is-primary"> */}
