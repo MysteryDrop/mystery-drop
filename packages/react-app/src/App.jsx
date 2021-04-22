@@ -352,7 +352,7 @@ function App(props) {
                 <Route path="/about">
                   <About />
                 </Route>
-                <Route path="/mint">
+                <Route path="/mint/:id?">
                   <Mint
                     provider={userProvider}
                     mainnetProvider={mainnetProvider}

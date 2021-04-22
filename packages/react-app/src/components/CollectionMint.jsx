@@ -78,7 +78,12 @@ export default function Drops({ jwtAuthToken, provider, mainnetProvider, dropId 
               action={() => mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })}
             />
           ))}
-          <button onClick={() => console.log({ jwtAuthToken })} className="button is-primary">
+          <button
+            onClick={() => {
+              window.location.href = "/mydrops";
+            }}
+            className="button is-primary"
+          >
             Finish
           </button>
         </div>

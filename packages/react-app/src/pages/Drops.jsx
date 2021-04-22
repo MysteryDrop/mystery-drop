@@ -27,6 +27,15 @@ export default function Drops({ jwtAuthToken, setJwtAuthToken, provider }) {
                 altSubtitle={mintable ? "Mintable" : "Minted"}
                 description={drop.dropDescription}
                 prompt={mintable ? "Edit" : "Publish"}
+                action={
+                  mintable
+                    ? () => {
+                        window.location.href = `/mint/${drop.dropId}`;
+                      }
+                    : () => {
+                        console.log("Publish");
+                      }
+                }
               />
             );
           } else {

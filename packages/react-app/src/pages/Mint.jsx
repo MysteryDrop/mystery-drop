@@ -8,6 +8,7 @@ import "./Mint.scss";
 import { logout } from "util/auth";
 import { apiRequest } from "../util/util";
 import { CollectionMint } from "components";
+import { useParams } from "react-router";
 
 async function logDrops({ jwtAuthToken }) {
   const result = await apiRequest({ path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken });
@@ -67,13 +68,14 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
 }
 
 export default function Mint({ provider, mainnetProvider, jwtAuthToken, setJwtAuthToken }) {
-  const [step, setStep] = useState(0);
+  const { id } = useParams();
+  const [step, setStep] = useState(id ? 2 : 0);
   const [artworks, setArtworks] = useState([]);
   const [bannerImg, setBannerImg] = useState();
   const [title, setTitle] = useState();
   const [description, setDescription] = useState();
   const [dropDate, setDropDate] = useState();
-  const [dropId, setDropId] = useState();
+  const [dropId, setDropId] = useState(id);
   const [price, setPrice] = useState();
   const queryClient = useQueryClient();
 
