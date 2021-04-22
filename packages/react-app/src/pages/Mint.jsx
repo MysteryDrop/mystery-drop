@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useQueryClient } from "react-query";
 import axios, { AxiosResponse } from "axios";
 import { v4 as uuid } from "uuid";
+import { useParams } from "react-router";
 
 import { AuthRequired, StepIndicator, CollectionUpload, CollectionDetails } from "components";
 import "./Mint.scss";
 import { logout } from "util/auth";
 import { apiRequest } from "../util/util";
 import { CollectionMint } from "components";
-import { useParams } from "react-router";
+import { AuthContext } from "Contexts";
 
 async function logDrops({ jwtAuthToken }) {
   const result = await apiRequest({ path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken });
@@ -67,8 +68,9 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
   }
 }
 
-export default function Mint({ provider, mainnetProvider, jwtAuthToken, setJwtAuthToken }) {
+export default function Mint({ provider, mainnetProvider }) {
   const { id } = useParams();
+  const [jwtAuthToken, setJwtAuthToken] = useContext(AuthContext);
   const [step, setStep] = useState(id ? 2 : 0);
   const [artworks, setArtworks] = useState([]);
   const [bannerImg, setBannerImg] = useState();
@@ -147,12 +149,7 @@ export default function Mint({ provider, mainnetProvider, jwtAuthToken, setJwtAu
           {/* <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary"> */}
           {/*   Logout */}
           {/* </button> */}
-          <CollectionMint
-            provider={provider}
-            mainnetProvider={mainnetProvider}
-            jwtAuthToken={jwtAuthToken}
-            dropId={dropId}
-          />
+          <CollectionMint provider={provider} mainnetProvider={mainnetProvider} dropId={dropId} />
         </>
       )}
       {/* <button onClick={submit} className="submit button is-primary"> */}
@@ -160,6 +157,6 @@ export default function Mint({ provider, mainnetProvider, jwtAuthToken, setJwtAu
       {/* </button> */}
     </div>
   ) : (
-    <AuthRequired provider={provider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />
+    <AuthRequired provider={provider} />
   );
 }

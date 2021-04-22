@@ -41,8 +41,6 @@ export default function Header({
         logout={logoutOfWeb3Modal}
         connect={loadWeb3Modal}
         setProvider={setProvider}
-        jwtAuthToken={jwtAuthToken}
-        setJwtAuthToken={setJwtAuthToken}
       />
       <img
         className="hamburger"

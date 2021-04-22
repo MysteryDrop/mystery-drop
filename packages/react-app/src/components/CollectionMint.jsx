@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useQuery } from "react-query";
 
 import "./CollectionMint.scss";
@@ -6,6 +6,7 @@ import { apiRequest } from "../util/util";
 import { DropPreview } from "components";
 import { createLazyMintForm, signLazyMintMessage } from "util/signtypedData/lazyMint";
 import { useExchangePrice } from "hooks";
+import { AuthContext } from "Contexts";
 
 async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   const result = await apiRequest({
@@ -48,7 +49,8 @@ async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   console.log({ mintResult });
 }
 
-export default function Drops({ jwtAuthToken, provider, mainnetProvider, dropId }) {
+export default function Drops({ provider, mainnetProvider, dropId }) {
+  const [jwtAuthToken] = useContext(AuthContext);
   console.log({ jwtAuthToken });
   const query = () => apiRequest({ path: `v1/getDrops?dropId=${dropId}`, method: "GET", accessToken: jwtAuthToken });
   const { isLoading, error, data, isFetching } = useQuery(`userDrops`, query, { refetchInterval: 3000 });

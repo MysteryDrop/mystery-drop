@@ -1,11 +1,13 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useContext, useEffect } from "react";
 import { Web3Provider } from "@ethersproject/providers";
+import { AuthContext } from "Contexts";
 
-import { login } from "../util/auth";
 import { ReactComponent as UserImg } from "assets/person-fill.svg";
+import { login } from "../util/auth";
 import "./AuthRequired.scss";
 
-export default function AuthRequired({ provider, jwtAuthToken, setJwtAuthToken }) {
+export default function AuthRequired({ provider }) {
+  const [jwtAuthToken, setJwtAuthToken] = useContext(AuthContext);
   const [awaitingJwt, setAwaitingJwt] = useState(false);
 
   const connect = useCallback(async () => {

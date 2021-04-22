@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useQuery } from "react-query";
 
 import { apiRequest } from "../util/util";
 import { AuthRequired, DropPreview } from "components";
+import { AuthContext } from "Contexts";
 import "./Drops.scss";
 
-export default function Drops({ jwtAuthToken, setJwtAuthToken, provider }) {
+export default function Drops({ provider }) {
+  const [jwtAuthToken] = useContext(AuthContext);
   const query = () => apiRequest({ path: `v1/getDrops?`, method: "GET", accessToken: jwtAuthToken });
   const { isLoading, error, data, isFetching } = useQuery(`userDrops`, query, { refetchInterval: 3000 });
 
@@ -45,6 +47,6 @@ export default function Drops({ jwtAuthToken, setJwtAuthToken, provider }) {
       )}
     </div>
   ) : (
-    <AuthRequired provider={provider} jwtAuthToken={jwtAuthToken} setJwtAuthToken={setJwtAuthToken} />
+    <AuthRequired provider={provider} />
   );
 }

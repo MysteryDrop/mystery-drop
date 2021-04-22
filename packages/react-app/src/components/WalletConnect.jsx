@@ -1,7 +1,10 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import { Web3Provider } from "@ethersproject/providers";
+import { AuthContext } from "Contexts";
 
-export default function WalletConnect({ web3Modal, setProvider, jwtAuthToken, setJwtAuthToken }) {
+export default function WalletConnect({ web3Modal, setProvider }) {
+  const [jwtAuthToken, setJwtAuthToken] = useContext(AuthContext);
+
   const logout = async () => {
     await web3Modal.clearCachedProvider();
     setTimeout(() => {
