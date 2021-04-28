@@ -29,9 +29,6 @@ export default function Header({
         <a href="/about" className={route === "/about" ? "nav-link is-selected" : "nav-link"}>
           About
         </a>
-        <a href="/mint" className={route === "/mint" ? "nav-link is-selected" : "nav-link"}>
-          Mint
-        </a>
         <a href="/mydrops" className={route === "/mydrops" ? "nav-link is-selected" : "nav-link"}>
           My Drops
         </a>

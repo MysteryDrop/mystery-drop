@@ -13,7 +13,17 @@ export default function Drops({ provider }) {
 
   return jwtAuthToken ? (
     <div className="my-drops">
-      <h1>My Drops</h1>
+      <div className="header">
+        <h1>My Drops</h1>
+        <button
+          className="button-alt"
+          onClick={() => {
+            window.location.href = "/mint";
+          }}
+        >
+          Create New
+        </button>
+      </div>
       {isLoading || (isFetching && !data) ? (
         <div className="loading" />
       ) : (
