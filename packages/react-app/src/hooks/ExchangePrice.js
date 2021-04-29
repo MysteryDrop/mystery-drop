@@ -7,7 +7,7 @@ export default function useExchangePrice(targetNetwork, mainnetProvider, pollTim
 
   const pollPrice = () => {
     async function getPrice() {
-      if (targetNetwork.price) {
+      if (targetNetwork && targetNetwork.price) {
         setPrice(targetNetwork.price);
       } else {
         const DAI = new Token(

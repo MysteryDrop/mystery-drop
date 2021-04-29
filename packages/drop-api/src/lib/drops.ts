@@ -1,6 +1,6 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3"
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
-import { getContent, getDropsForUser } from "src/models/mysteryDropFunctions"
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { getContent, getDropsForUser } from 'src/models/mysteryDropFunctions'
 import axios from 'axios'
 
 interface GetDropsOutputBase {
@@ -16,8 +16,9 @@ interface SellOrders {
 interface ContentData {
   contentId: string
   contentUrl: string
-  metadata: {[key: string]: any}
+  metadata: { [key: string]: any }
   status: string
+  token: any
   orders: SellOrders
 }
 
@@ -38,19 +39,29 @@ interface GetDropsOutputProcessing extends GetDropsOutputBase {
 
 type GetDropsOutput = GetDropsOutputProcessed | GetDropsOutputProcessing
 
-const getSellOrdersByItem = async (contractAddress: string, tokenId: string): Promise<SellOrders> => {
-  const url = `${process.env.RARIBLE_API_URL_BASE}v0.1/ethereum/order/orders/sell/byItem?token=${contractAddress}&tokenId=${tokenId}&sort=LAST_UPDATE`
-  const result = await axios.get(url)
-  console.log({result})
-  if (result.status !== 200) return {success: false, orders: []}
-  return {
-    success: true,
-    orders: result.data.orders
+const getSellOrdersByItem = async (
+  contractAddress: string,
+  tokenId: string
+): Promise<SellOrders> => {
+  try {
+    const url = `${process.env.RARIBLE_API_URL_BASE}v0.1/ethereum/order/orders/sell/byItem?contract=${contractAddress}&tokenId=${tokenId}&sort=LAST_UPDATE`
+    const result = await axios.get(url)
+    if (result.status !== 200)
+      throw new Error('Failed to get sell ordres from Rarible')
+    return {
+      success: true,
+      orders: result.data.orders,
+    }
+  } catch (e) {
+    return { success: false, orders: [] }
   }
-  
 }
 
-export const getDropsView = async (user: string, client: S3Client, dropId?: string) => {
+export const getDropsView = async (
+  user: string,
+  client: S3Client,
+  dropId?: string
+) => {
   const drops = await getDropsForUser({ publicAddress: user, dropId })
   console.log({ drops })
 
@@ -75,42 +86,43 @@ export const getDropsView = async (user: string, client: S3Client, dropId?: stri
             expiresIn: 3600,
           }
         )
-        const contents = await getContent({dropId})
-        console.log({contents})
+        const contents = await getContent({ dropId })
+        console.log({ contents })
         if (contents.length < parseInt(dropData.numberOfItems))
           throw new Error('still processing')
 
         const contentData: ContentData[] = []
 
         for (let index = 0; index < contents.length; index++) {
-          const content = contents[index];
+          const content = contents[index]
           const getContentCommand = new GetObjectCommand({
             Bucket: process.env.BUCKET_NAME,
-            Key: content.S3ObjectKey
+            Key: content.S3ObjectKey,
           })
-          const contentUrl = await getSignedUrl(
-            client,
-            getContentCommand,
-            {
-              expiresIn: 3600,
-            }
-          )
+          const contentUrl = await getSignedUrl(client, getContentCommand, {
+            expiresIn: 3600,
+          })
 
           const contentId = content.SK.split('#CONTENT#')[1]
 
-          let orders: SellOrders = {success: false, orders: []}
+          let orders: SellOrders = { success: false, orders: [] }
           if (content.Status === 'MINTED') {
-            orders = await getSellOrdersByItem(process.env.TOKEN_CONTRACT_ADDRESS, content.TokenId)
+            console.log('Checking orders')
+            orders = await getSellOrdersByItem(
+              process.env.TOKEN_CONTRACT_ADDRESS,
+              content.TokenId
+            )
+            console.log({ orders })
           }
 
           contentData.push({
             contentId,
             contentUrl,
             metadata: content.Metadata,
+            token: content.TokenData ? JSON.parse(content.TokenData) : undefined,
             status: content.Status,
-            orders
+            orders,
           })
-          
         }
 
         dropsToReturn.push({
@@ -125,7 +137,7 @@ export const getDropsView = async (user: string, client: S3Client, dropId?: stri
           createdAt: drop.CreatedAt,
         })
       } catch (error) {
-        console.log({error})
+        console.log({ error })
         dropsToReturn.push({
           status: 'PROCESSING',
           dropId,
@@ -134,5 +146,4 @@ export const getDropsView = async (user: string, client: S3Client, dropId?: stri
     }
   }
   return dropsToReturn
-
 }

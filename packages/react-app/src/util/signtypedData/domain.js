@@ -24,3 +24,25 @@ export const ERC1155Types = {
 		{name: 'royalties', type: 'Part[]'}
 	]
 };
+
+export const orderTypes = {
+  AssetType: [
+    { name: 'assetClass', type: 'bytes4' },
+    { name: 'data', type: 'bytes' },
+  ],
+  Asset: [
+    { name: 'assetType', type: 'AssetType' },
+    { name: 'value', type: 'uint256' },
+  ],
+  Order: [
+    { name: 'maker', type: 'address' },
+    { name: 'makeAsset', type: 'Asset' },
+    { name: 'taker', type: 'address' },
+    { name: 'takeAsset', type: 'Asset' },
+    { name: 'salt', type: 'uint256' },
+    { name: 'start', type: 'uint256' },
+    { name: 'end', type: 'uint256' },
+    { name: 'dataType', type: 'bytes4' },
+    { name: 'data', type: 'bytes' },
+  ],
+}

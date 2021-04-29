@@ -126,7 +126,7 @@ export const submitLazyMint = async (
     url,
     {
       '@type': 'ERC721',
-      token: process.env.TOKEN_CONTRACT_ADDRESS,
+      contract: process.env.TOKEN_CONTRACT_ADDRESS,
       tokenId: contentItem.TokenId,
       uri: contentItem.TokenUri,
       creators,

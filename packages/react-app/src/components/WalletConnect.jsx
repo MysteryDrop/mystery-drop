@@ -6,6 +6,7 @@ export default function WalletConnect({ web3Modal, setProvider }) {
   const [jwtAuthToken, setJwtAuthToken] = useContext(AuthContext);
 
   const logout = async () => {
+    console.log('LOGOUT setting jwt null')
     await web3Modal.clearCachedProvider();
     setTimeout(() => {
       window.location.reload();

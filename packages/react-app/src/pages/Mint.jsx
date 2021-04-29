@@ -4,9 +4,8 @@ import axios, { AxiosResponse } from "axios";
 import { v4 as uuid } from "uuid";
 import { useParams } from "react-router";
 
-import { AuthRequired, StepIndicator, CollectionUpload, CollectionDetails } from "components";
+import { AuthRequired, StepIndicator, CollectionUpload, CollectionDetails, CollectionList } from "components";
 import "./Mint.scss";
-import { logout } from "util/auth";
 import { apiRequest } from "../util/util";
 import { CollectionMint } from "components";
 import { AuthContext } from "Contexts";
@@ -149,7 +148,11 @@ export default function Mint({ provider, mainnetProvider }) {
           {/* <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary"> */}
           {/*   Logout */}
           {/* </button> */}
-          <CollectionMint provider={provider} mainnetProvider={mainnetProvider} dropId={dropId} />
+          <CollectionMint
+            provider={provider}
+            mainnetProvider={mainnetProvider}
+            dropId={dropId}
+          />
         </>
       )}
       {/* <button onClick={submit} className="submit button is-primary"> */}

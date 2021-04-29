@@ -35,7 +35,7 @@ export default function Drops({ provider }) {
                         window.location.href = `/mint/${drop.dropId}`;
                       }
                     : () => {
-                        console.log("Publish");
+                        window.location.href = `/mint/${drop.dropId}`;
                       }
                 }
               />
