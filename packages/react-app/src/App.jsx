@@ -19,7 +19,7 @@ import {
   useExternalContractLoader,
 } from "./hooks";
 import { Header, Contract, About, Gallery, Purchase } from "components";
-import { Mint, Drops } from "./pages";
+import { Mint, Drops, Explore } from "./pages";
 import { Transactor } from "./helpers";
 import { formatEther } from "@ethersproject/units";
 //import Hints from "./Hints";
@@ -316,32 +316,33 @@ function App(props) {
               {injectedProvider ? (
                 <Switch>
                   <Route exact path="/">
-                    <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-                      <List
-                        dataSource={yourDrops}
-                        renderItem={item => {
-                          const id = item.tokenAddress;
-                          console.log({ id });
-                          return (
-                            <List.Item key={id}>
-                              <Purchase
-                                availTokens={item.tokensAvailable}
-                                yourBalance={item.yourBalance}
-                                tokenAddress={item.tokenAddress}
-                                currPrice={item.currentPrice}
-                                tx={tx}
-                                writeContracts={writeContracts}
-                                /* name="YourContract" */
-                                /* signer={userProvider.getSigner()} */
-                                /* provider={localProvider} */
-                                /* address={address} */
-                                /* blockExplorer={blockExplorer} */
-                              />
-                            </List.Item>
-                          );
-                        }}
-                      ></List>
-                    </div>
+                    <Explore />
+                    {/* <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}> */}
+                    {/*   <List */}
+                    {/*     dataSource={yourDrops} */}
+                    {/*     renderItem={item => { */}
+                    {/*       const id = item.tokenAddress; */}
+                    {/*       console.log({ id }); */}
+                    {/*       return ( */}
+                    {/*         <List.Item key={id}> */}
+                    {/*           <Purchase */}
+                    {/*             availTokens={item.tokensAvailable} */}
+                    {/*             yourBalance={item.yourBalance} */}
+                    {/*             tokenAddress={item.tokenAddress} */}
+                    {/*             currPrice={item.currentPrice} */}
+                    {/*             tx={tx} */}
+                    {/*             writeContracts={writeContracts} */}
+                    {/*             /\* name="YourContract" *\/ */}
+                    {/*             /\* signer={userProvider.getSigner()} *\/ */}
+                    {/*             /\* provider={localProvider} *\/ */}
+                    {/*             /\* address={address} *\/ */}
+                    {/*             /\* blockExplorer={blockExplorer} *\/ */}
+                    {/*           /> */}
+                    {/*         </List.Item> */}
+                    {/*       ); */}
+                    {/*     }} */}
+                    {/*   ></List> */}
+                    {/* </div> */}
                   </Route>
                   <Route path="/gallery">
                     <Gallery

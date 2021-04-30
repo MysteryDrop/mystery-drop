@@ -24,6 +24,7 @@ export { default as TextInput } from "./TextInput";
 export { default as FileInput } from "./FileInput";
 export { default as DateTimeInput } from "./DateTimeInput";
 export { default as CollectionUpload } from "./CollectionUpload";
+export { default as Hero } from "./Hero";
 export { default as CollectionDetails } from "./CollectionDetails";
 export { default as CollectionMint } from "./CollectionMint";
 export { default as StepIndicator } from "./StepIndicator";
