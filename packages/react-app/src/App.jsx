@@ -9,6 +9,7 @@ import { Alert, List } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
+import { apiRequest } from "./util/util.js";
 import {
   useGasPrice,
   useContractLoader,
@@ -281,8 +282,20 @@ function App(props) {
   const [jwtAuthToken, setJwtAuthToken] = useState(storedJwt !== "null" ? storedJwt : null);
 
   useEffect(() => {
-    console.log({ jwtAuthToken });
-    window.localStorage.setItem("jwtAuthToken", jwtAuthToken);
+    if (jwtAuthToken) {
+      apiRequest({ path: "v1/helloAuth?", method: "GET", accessToken: jwtAuthToken })
+        .then(res => {
+          if (res.message === "Unauthorized") {
+            setJwtAuthToken(null);
+          }
+        })
+        .catch(err => {
+          setJwtAuthToken(null);
+        })
+        .finally(() => {
+          window.localStorage.setItem("jwtAuthToken", jwtAuthToken);
+        });
+    }
   }, [jwtAuthToken]);
 
   return (
