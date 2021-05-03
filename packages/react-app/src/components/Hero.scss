@@ -1,8 +1,8 @@
 @import "styles/default.scss";
 
 .hero {
-  max-width: $desktop;
-  margin: auto;
+  max-width: $large;
+  margin: 5rem auto;
   display: flex;
   flex-direction: row;
   align-items: center;
