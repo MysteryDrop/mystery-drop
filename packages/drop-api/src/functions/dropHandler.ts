@@ -3,16 +3,18 @@ import apiResponses from 'src/requests/apiResponses'
 import { S3Client } from '@aws-sdk/client-s3'
 import axios from 'axios'
 
-import {
-  getTokenForMinting,
-} from '../models/mysteryDropFunctions'
+import { getTokenForMinting } from '../models/mysteryDropFunctions'
 import { authenticate, getAuthenticationChallenge } from '../lib/auth'
 import {
   DropMetadata,
   prepareS3ForUpload,
   processUploadedContent,
 } from '../lib/upload'
-import { getDropsView } from '../lib/drops'
+import {
+  getAuthenticatedDropsToReturn,
+  getPublicDropsToReturn,
+  publishDrop,
+} from '../lib/drops'
 import { preprocessContent, submitLazyMint } from 'src/lib/mint'
 
 const MAX_ITEMS_IN_COLLECTION = 6
@@ -160,7 +162,7 @@ export async function getDrops(
   const dropId = parameters ? parameters['dropId'] : undefined
 
   try {
-    const drops = await getDropsView(user, client, dropId)
+    const drops = await getAuthenticatedDropsToReturn(user, client, dropId)
 
     return apiResponses._200({ drops })
   } catch (e) {
@@ -195,17 +197,49 @@ export async function lazyMint(
   const { contentId, dropId, signature } = JSON.parse(event.body)
 
   try {
-
     const tokenData = await submitLazyMint(dropId, contentId, user, signature)
 
     return apiResponses._200({ success: true, tokenData })
   } catch (e) {
     return apiResponses._400({ error: e.message })
   }
+}
 
+/**
+ * GET /public/drops
+ *
+ * Returns drop
+ * @method getPublicDrops
+ * @returns {Object} Metadata for public drop
+ */
+export async function getPublicDrops(
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  const parameters = event.queryStringParameters
 
-  // validate signature
+  // dropId may be undefined. If undefined endpoint returns all drops for user
+  const dropId = parameters ? parameters['dropId'] : undefined
 
-  // store signature in DB
+  try {
+    const drops = await getPublicDropsToReturn(client, dropId)
 
+    return apiResponses._200({ drops })
+  } catch (e) {
+    return apiResponses._400({ error: e.message })
+  }
+}
+
+export async function publish(
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  const user = event.requestContext.authorizer.lambda.user
+  const { dropId } = JSON.parse(event.body)
+
+  try {
+    await publishDrop(user, dropId)
+
+    return apiResponses._200({ success: true })
+  } catch (e) {
+    return apiResponses._400({ error: e.message })
+  }
 }

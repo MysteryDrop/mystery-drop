@@ -138,7 +138,7 @@ export const addContentToDrop = async (params: AddContentToDropParams) => {
 }
 
 // Get drop
-export const getDropsForUser = (params: {
+export const getAuthenticatedDropsView = (params: {
   publicAddress: string
   dropId?: string
 }) => {
@@ -169,6 +169,86 @@ export const getDropsForUser = (params: {
     .promise()
     .then((data) => data.Items)
 }
+
+export const updateDropStatus = (params: {
+  dropId: string,
+  dropData: string,
+  status: string
+}) => {
+  const queryParams: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: tableName,
+    Key: {
+      PK: `DROP#${params.dropId}`,
+      SK: `#STATUS#${params.status}`,
+    },
+    UpdateExpression: 'set #DD = :d, #CA = :c',
+    ExpressionAttributeNames: { '#DD': 'DropData', '#CA': 'CreatedAt' },
+    ExpressionAttributeValues: {
+      ':d': params.dropData,
+      ':c': new Date().toISOString(),
+    },
+  }
+  console.log({queryParams})
+
+  return documentClient
+    .update(queryParams)
+    .promise()
+    .then((data) => data)
+}
+
+export const getDropStatus = (params: {dropId: string}) => {
+  const queryParams: DynamoDB.DocumentClient.QueryInput = 
+    {
+        TableName: tableName,
+        KeyConditionExpression:
+          '#pk = :primary_key and begins_with(#sk, :sort_key)',
+        ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
+        ExpressionAttributeValues: {
+          ':primary_key': `DROP#${params.dropId}`,
+          ':sort_key': `#STATUS#`
+        },
+      }
+  console.log({ queryParams })
+  return documentClient
+    .query(queryParams)
+    .promise()
+    .then((data) => data.Items.length > 0 ? data.Items[0].SK.split('#STATUS#')[1] : undefined)
+
+}
+
+// Get drop
+export const getPublicDropsView = (params: {
+  dropId?: string
+}) => {
+  const queryParams: DynamoDB.DocumentClient.QueryInput = params.dropId
+    ? {
+        TableName: tableName,
+        KeyConditionExpression:
+          '#pk = :primary_key and #sk = :sort_key',
+        ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
+        ExpressionAttributeValues: {
+          ':primary_key': `DROP#${params.dropId}`,
+          ':sort_key': '#STATUS#LISTED',
+        },
+      }
+    : {
+        TableName: tableName,
+        IndexName: 'SK_GSI_PK',
+        KeyConditionExpression:
+          '#sk = :sort_key and begins_with(#pk, :pk_prefix)',
+        ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
+        ExpressionAttributeValues: {
+          ':pk_prefix': `DROP#`,
+          ':sort_key': '#STATUS#LISTED'
+        },
+      }
+  console.log({ queryParams })
+  return documentClient
+    .query(queryParams)
+    .promise()
+    .then((data) => data.Items)
+}
+
 
 export interface CreateContentParams {
   dropId: string

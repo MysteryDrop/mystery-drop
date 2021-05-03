@@ -151,6 +151,24 @@ functions:
           method: get
           authorizer:
             name: customAuthorizer
+  publishDrop:
+    handler: src/functions/dropHandler.publish
+    events:
+      - httpApi:
+          path: /v1/publishDrop
+          method: post
+          authorizer:
+            name: customAuthorizer
+  getPublicDrops:
+    handler: src/functions/dropHandler.getPublicDrops
+    environment:
+      BUCKET_NAME: ${self:custom.bucketName}
+      TOKEN_CONTRACT_ADDRESS : ${env:TOKEN_CONTRACT_ADDRESS}
+      RARIBLE_API_URL_BASE : ${env:RARIBLE_API_URL_BASE}
+    events:
+      - httpApi:
+          path: /v1/public/getDrops
+          method: get
   prepareForMinting:
     handler: src/functions/dropHandler.prepareForMinting
     environment:
