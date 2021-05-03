@@ -30,6 +30,8 @@ export default function Drops({ provider }) {
         data.drops?.map(drop => {
           if (drop.status !== "PROCESSING") {
             const mintable = drop.content?.some(e => e.status !== "MINTED");
+            // const listable = drop.content?.some(e => e.orders.success === true && e.orders.orders.length > 0);
+            const publishable = drop.status !== "LISTED";
             return (
               <DropPreview
                 key={drop.dropId}
@@ -38,9 +40,13 @@ export default function Drops({ provider }) {
                 subtitle={drop.numberOfItems + " Pieces"}
                 altSubtitle={mintable ? "Mintable" : "Minted"}
                 description={drop.dropDescription}
-                prompt={mintable ? "Edit" : "Publish"}
+                prompt={mintable ? "Edit" : publishable ? "Publish" : "List"}
                 action={
                   mintable
+                    ? () => {
+                        window.location.href = `/mint/${drop.dropId}`;
+                      }
+                    : publishable
                     ? () => {
                         window.location.href = `/mint/${drop.dropId}`;
                       }
