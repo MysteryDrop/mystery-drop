@@ -9,6 +9,7 @@ import { Alert, List } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
+import { apiRequest } from "./util/util.js";
 import {
   useGasPrice,
   useContractLoader,
@@ -18,7 +19,7 @@ import {
   useExternalContractLoader,
 } from "./hooks";
 import { Header, Contract, About, Gallery, Purchase } from "components";
-import { Mint, Drops } from "./pages";
+import { Mint, Drops, Explore } from "./pages";
 import { Transactor } from "./helpers";
 import { formatEther } from "@ethersproject/units";
 //import Hints from "./Hints";
@@ -281,8 +282,20 @@ function App(props) {
   const [jwtAuthToken, setJwtAuthToken] = useState(storedJwt !== "null" ? storedJwt : null);
 
   useEffect(() => {
-    console.log({ jwtAuthToken });
-    window.localStorage.setItem("jwtAuthToken", jwtAuthToken);
+    if (jwtAuthToken) {
+      apiRequest({ path: "v1/helloAuth?", method: "GET", accessToken: jwtAuthToken })
+        .then(res => {
+          if (res.message === "Unauthorized") {
+            setJwtAuthToken(null);
+          }
+        })
+        .catch(err => {
+          setJwtAuthToken(null);
+        })
+        .finally(() => {
+          window.localStorage.setItem("jwtAuthToken", jwtAuthToken);
+        });
+    }
   }, [jwtAuthToken]);
 
   return (
@@ -303,32 +316,33 @@ function App(props) {
               {injectedProvider ? (
                 <Switch>
                   <Route exact path="/">
-                    <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-                      <List
-                        dataSource={yourDrops}
-                        renderItem={item => {
-                          const id = item.tokenAddress;
-                          console.log({ id });
-                          return (
-                            <List.Item key={id}>
-                              <Purchase
-                                availTokens={item.tokensAvailable}
-                                yourBalance={item.yourBalance}
-                                tokenAddress={item.tokenAddress}
-                                currPrice={item.currentPrice}
-                                tx={tx}
-                                writeContracts={writeContracts}
-                                /* name="YourContract" */
-                                /* signer={userProvider.getSigner()} */
-                                /* provider={localProvider} */
-                                /* address={address} */
-                                /* blockExplorer={blockExplorer} */
-                              />
-                            </List.Item>
-                          );
-                        }}
-                      ></List>
-                    </div>
+                    <Explore />
+                    {/* <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}> */}
+                    {/*   <List */}
+                    {/*     dataSource={yourDrops} */}
+                    {/*     renderItem={item => { */}
+                    {/*       const id = item.tokenAddress; */}
+                    {/*       console.log({ id }); */}
+                    {/*       return ( */}
+                    {/*         <List.Item key={id}> */}
+                    {/*           <Purchase */}
+                    {/*             availTokens={item.tokensAvailable} */}
+                    {/*             yourBalance={item.yourBalance} */}
+                    {/*             tokenAddress={item.tokenAddress} */}
+                    {/*             currPrice={item.currentPrice} */}
+                    {/*             tx={tx} */}
+                    {/*             writeContracts={writeContracts} */}
+                    {/*             /\* name="YourContract" *\/ */}
+                    {/*             /\* signer={userProvider.getSigner()} *\/ */}
+                    {/*             /\* provider={localProvider} *\/ */}
+                    {/*             /\* address={address} *\/ */}
+                    {/*             /\* blockExplorer={blockExplorer} *\/ */}
+                    {/*           /> */}
+                    {/*         </List.Item> */}
+                    {/*       ); */}
+                    {/*     }} */}
+                    {/*   ></List> */}
+                    {/* </div> */}
                   </Route>
                   <Route path="/gallery">
                     <Gallery

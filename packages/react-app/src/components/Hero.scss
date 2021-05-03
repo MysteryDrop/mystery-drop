@@ -1,0 +1,57 @@
+@import "styles/default.scss";
+
+.hero {
+  max-width: $large;
+  margin: 5rem auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 2rem;
+
+  img {
+    flex: 1;
+    box-sizing: border-box;
+    padding: 0 10%;
+  }
+
+  .info-container {
+    text-align: left;
+    flex: 2;
+    padding-right: 10%;
+
+    h1 {
+      font-weight: 700;
+      font-size: 4rem;
+      color: $purple;
+      line-height: 120%;
+
+      .alt {
+        color: $green;
+        font-weight: 200;
+      }
+    }
+
+    p {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    a {
+      color: $purple;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+
+      &::after {
+        content: "";
+        display: inline-block;
+        background: url("../assets/arrow-right.svg");
+        background-size: contain;
+        background-position: center center;
+        height: 1.2rem;
+        width: 1.2rem;
+        margin: 0.5rem;
+      }
+    }
+  }
+}

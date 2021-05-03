@@ -1,0 +1,46 @@
+@import "styles/default.scss";
+
+.drops-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  margin: auto;
+  max-width: $large;
+
+  h4 {
+    font-weight: 600;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .cards-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-column-gap: 1rem;
+    grid-template-rows: 1fr;
+  }
+}
+
+@media only screen and (max-width: $large) {
+  .drops-container {
+    .cards-container {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+}
+
+@media only screen and (max-width: $medium) {
+  .drops-container {
+    .cards-container {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}
+
+@media only screen and (max-width: $small) {
+  .drops-container {
+    .cards-container {
+      grid-template-columns: 1fr;
+    }
+  }
+}
