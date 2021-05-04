@@ -19,7 +19,7 @@ import {
   useExternalContractLoader,
 } from "./hooks";
 import { Header, Contract, About, Gallery, Purchase } from "components";
-import { Mint, Drops, Explore } from "./pages";
+import { Mint, Drops, Drop, Explore } from "./pages";
 import { Transactor } from "./helpers";
 import { formatEther } from "@ethersproject/units";
 //import Hints from "./Hints";
@@ -377,6 +377,9 @@ function App(props) {
                   </Route>
                   <Route path="/mydrops">
                     <Drops provider={userProvider} mainnetProvider={mainnetProvider} />
+                  </Route>
+                  <Route path="/drop/:id">
+                    <Drop />
                   </Route>
                 </Switch>
               ) : (

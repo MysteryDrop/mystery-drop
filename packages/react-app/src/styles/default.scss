@@ -31,20 +31,20 @@ html {
 }
 
 h1 {
-  font-size: 36px;
+  font-size: 2.4rem;
   font-weight: 700;
   margin-bottom: 20px;
 }
 
 h4 {
-  font-size: 18px;
+  font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 5px;
   text-align: left;
 }
 
 p {
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 600;
 }
 
@@ -67,10 +67,19 @@ p {
   &.is-primary {
     color: white;
     background-color: $green;
-    border: none;
+    border-color: $green;
 
     &:hover {
       color: white;
+    }
+  }
+
+  &[disabled] {
+    border-color: $placeholder;
+    color: $placeholder;
+
+    &:hover {
+      cursor: auto;
     }
   }
 }
