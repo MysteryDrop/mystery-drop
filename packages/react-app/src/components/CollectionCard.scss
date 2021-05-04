@@ -46,6 +46,8 @@
 
     .banner {
       flex: 1;
+      max-height: 50%;
+      object-fit: cover;
     }
 
     .info-container {

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { CollectionCard, Hero } from "components";
+import { apiRequest } from "../util/util";
 import "./Explore.scss";
 
 const DROP_EXAMPLE = [0, 1, 2, 3].map(() => ({
@@ -16,18 +17,37 @@ const DROP_EXAMPLE = [0, 1, 2, 3].map(() => ({
 }));
 
 export default function Explore() {
+  const [drops, setDrops] = useState();
+
+  useEffect(() => {
+    apiRequest({ path: "v1/public/getDrops", method: "GET" }).then(data => {
+      setDrops(data.drops);
+    });
+  }, []);
+
   return (
     <>
       <Hero />
       <div className="drops-container">
         <h4>Current Drops</h4>
         <div className="cards-container">
-          {DROP_EXAMPLE.map(
-            ({ dropId, dropTitle, numberOfItems, dropPreviewUrl, price, dropDate, artistID }, index) => (
+          {drops?.map(
+            (
+              {
+                dropId,
+                dropTitle,
+                content,
+                dropPreviewUrl,
+                price = 2.02,
+                dropDate = "2021-05-20T22:26:16.515Z",
+                artistID,
+              },
+              index,
+            ) => (
               <CollectionCard
                 key={index}
                 title={dropTitle}
-                numLeft={numberOfItems}
+                content={content}
                 image={dropPreviewUrl}
                 price={price}
                 dropDate={dropDate}
@@ -38,25 +58,25 @@ export default function Explore() {
           )}
         </div>
       </div>
-      <div className="drops-container">
-        <h4>Past Drops</h4>
-        <div className="cards-container">
-          {DROP_EXAMPLE.map(
-            ({ dropId, dropTitle, numberOfItems, dropPreviewUrl, price, dropDate, artistID }, index) => (
-              <CollectionCard
-                key={index}
-                title={dropTitle}
-                numLeft={numberOfItems}
-                image={dropPreviewUrl}
-                price={price}
-                dropDate="2021-04-20T22:26:16.515Z"
-                artist={artistID}
-                dropId={dropId}
-              />
-            ),
-          )}
-        </div>
-      </div>
+      {/* <div className="drops-container"> */}
+      {/*   <h4>Past Drops</h4> */}
+      {/*   <div className="cards-container"> */}
+      {/*     {DROP_EXAMPLE.map( */}
+      {/*       ({ dropId, dropTitle, numberOfItems, dropPreviewUrl, price, dropDate, artistID }, index) => ( */}
+      {/*         <CollectionCard */}
+      {/*           key={index} */}
+      {/*           title={dropTitle} */}
+      {/*           numLeft={numberOfItems} */}
+      {/*           image={dropPreviewUrl} */}
+      {/*           price={price} */}
+      {/*           dropDate="2021-04-20T22:26:16.515Z" */}
+      {/*           artist={artistID} */}
+      {/*           dropId={dropId} */}
+      {/*         /> */}
+      {/*       ), */}
+      {/*     )} */}
+      {/*   </div> */}
+      {/* </div> */}
     </>
   );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./CollectionCard.scss";
 
 const USER = {
@@ -7,8 +7,17 @@ const USER = {
     "https://images.unsplash.com/photo-1529066792305-5e4efa40fde9?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2624&q=80",
 };
 
-export default function CollectionCard({ dropId, title, numLeft, image, price, dropDate, artist }) {
+export default function CollectionCard({ dropId, title, content, image, price, dropDate, artist }) {
   const timeLeft = new Date(Date.parse(dropDate) - Date.now());
+  const [numLeft, setNumLeft] = useState();
+
+  useEffect(() => {
+    if (content) {
+      setNumLeft(content.reduce((acc, item) => acc + item.token.supply, 0));
+    } else {
+      setNumLeft(0);
+    }
+  }, [content]);
 
   return (
     <div
