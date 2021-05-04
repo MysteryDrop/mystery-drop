@@ -16,6 +16,7 @@ import {
   publishDrop,
 } from '../lib/drops'
 import { preprocessContent, submitLazyMint } from 'src/lib/mint'
+import { revealContent } from 'src/lib/reveal'
 
 const MAX_ITEMS_IN_COLLECTION = 6
 
@@ -237,6 +238,22 @@ export async function publish(
 
   try {
     await publishDrop(user, dropId)
+
+    return apiResponses._200({ success: true })
+  } catch (e) {
+    return apiResponses._400({ error: e.message })
+  }
+}
+
+export async function reveal(
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  const user = event.requestContext.authorizer.lambda.user
+  const { dropId, contentId } = JSON.parse(event.body)
+
+  try {
+    console.log(`reveal for ${user}`)
+    await revealContent(dropId, contentId, user, client)
 
     return apiResponses._200({ success: true })
   } catch (e) {

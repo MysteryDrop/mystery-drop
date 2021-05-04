@@ -29,6 +29,7 @@ interface ContentData {
 }
 
 interface ContentDataPublic {
+  contentId: string
   token: any
   orders: SellOrders
 }
@@ -211,6 +212,7 @@ export const getPublicDropsToReturn = async (
 
         for (let index = 0; index < contents.length; index++) {
           const content = contents[index]
+          const contentId = content.SK.split('#CONTENT#')[1]
 
           let orders: SellOrders = { success: false, orders: [] }
           if (content.Status !== 'MINTED')
@@ -224,6 +226,7 @@ export const getPublicDropsToReturn = async (
 
           contentData.push({
             token: JSON.parse(content.TokenData),
+            contentId,
             orders,
           })
         }

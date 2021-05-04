@@ -193,6 +193,18 @@ functions:
           method: post
           authorizer:
             name: customAuthorizer
+  reveal:
+    handler: src/functions/dropHandler.reveal
+    environment:
+      RARIBLE_API_URL_BASE : ${env:RARIBLE_API_URL_BASE}
+      PINATA_API_KEY : ${env:PINATA_API_KEY}
+      PINATA_SECRET_KEY : ${env:PINATA_SECRET_KEY}
+    events:
+      - httpApi:
+          path: /v1/reveal
+          method: post
+          authorizer:
+            name: customAuthorizer
   s3ProcessUploadedPhoto:
     handler: src/functions/dropHandler.s3ProcessUploadedPhoto
     iamRoleStatements:
