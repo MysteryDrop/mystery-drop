@@ -151,6 +151,24 @@ functions:
           method: get
           authorizer:
             name: customAuthorizer
+  publishDrop:
+    handler: src/functions/dropHandler.publish
+    events:
+      - httpApi:
+          path: /v1/publishDrop
+          method: post
+          authorizer:
+            name: customAuthorizer
+  getPublicDrops:
+    handler: src/functions/dropHandler.getPublicDrops
+    environment:
+      BUCKET_NAME: ${self:custom.bucketName}
+      TOKEN_CONTRACT_ADDRESS : ${env:TOKEN_CONTRACT_ADDRESS}
+      RARIBLE_API_URL_BASE : ${env:RARIBLE_API_URL_BASE}
+    events:
+      - httpApi:
+          path: /v1/public/getDrops
+          method: get
   prepareForMinting:
     handler: src/functions/dropHandler.prepareForMinting
     environment:
@@ -172,6 +190,18 @@ functions:
     events:
       - httpApi:
           path: /v1/mint
+          method: post
+          authorizer:
+            name: customAuthorizer
+  reveal:
+    handler: src/functions/dropHandler.reveal
+    environment:
+      RARIBLE_API_URL_BASE : ${env:RARIBLE_API_URL_BASE}
+      PINATA_API_KEY : ${env:PINATA_API_KEY}
+      PINATA_SECRET_KEY : ${env:PINATA_SECRET_KEY}
+    events:
+      - httpApi:
+          path: /v1/reveal
           method: post
           authorizer:
             name: customAuthorizer

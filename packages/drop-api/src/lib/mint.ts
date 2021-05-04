@@ -1,5 +1,6 @@
 import * as hash from 'ipfs-only-hash'
 import axios from 'axios'
+import { S3Client } from '@aws-sdk/client-s3'
 
 import {
   addMintDataToContent,
@@ -7,28 +8,8 @@ import {
   getContent,
   getTokenForMinting,
 } from '../models/mysteryDropFunctions'
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getS3Object } from './utils'
 
-const getS3Object = async (
-  s3Key: string,
-  bucketName: string,
-  client: S3Client
-) => {
-  const getObjectCommand = new GetObjectCommand({
-    Bucket: bucketName,
-    Key: s3Key,
-  })
-  const s3Object = await client.send(getObjectCommand)
-  if (!s3Object.$metadata) {
-    const errorMessage = 'Cannot process content as no metadata is set for it'
-    console.error(errorMessage, { s3Object })
-    throw new Error(errorMessage)
-  }
-
-  const content = s3Object.Body
-
-  return content
-}
 
 // split this out so we can test it with a snapshot to catch changes
 const calculateIpfsHash = async (content: any) => {return await hash.of(content)}

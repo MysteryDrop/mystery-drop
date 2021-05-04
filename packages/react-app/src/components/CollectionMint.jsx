@@ -50,6 +50,18 @@ async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   console.log({ mintResult });
 }
 
+async function publishDrop({ dropId, jwtAuthToken}) {
+  const result = await apiRequest({
+    path: `v1/publishDrop`,
+    method: "POST",
+    accessToken: jwtAuthToken,
+    data: {
+      dropId
+    }
+  });
+  console.log({ result });
+}
+
 async function listItem({provider, content}) {
   const signer = provider.getSigner();
   const network = await provider.getNetwork()
@@ -98,6 +110,14 @@ export default function Drops({ provider, mainnetProvider, dropId }) {
               }
             />
           ))}
+          <button
+            onClick={() => {
+              publishDrop({dropId: drop.dropId, jwtAuthToken})
+            }}
+            className="button is-primary"
+          >
+            Publish
+          </button>
           <button
             onClick={() => {
               window.location.href = "/mydrops";

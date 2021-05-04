@@ -3,18 +3,13 @@ import { raribleApiRequest } from "../util";
 import { orderTypes } from './domain';
 
 export function createOrderForm(
+  assetType,
   maker,
-  contract,
-  tokenId,
 ) {
   return {
-    maker: maker,
+    maker,
     make: {
-      "type": {
-        "@type": "ERC721",
-        "token": contract,
-        "tokenId": tokenId
-      },
+      assetType,
       "value": "1"
     },
     take: {
@@ -32,9 +27,19 @@ export function createOrderForm(
   }
 }
 
+// export async function getLazyMintedItem(id) {
+//   const res = await raribleApiRequest({
+//    path: `/protocol/v0.1/ethereum/nft/items/${id}/lazy`,
+//    method: 'GET' ,
+//    data: order
+//   })
+//   return res.data
+// }
+
+
 async function getEncodedAssetData(asset) {
   const res = await raribleApiRequest({
-   path: 'protocol/ethereum/order/indexer/v0.1/encoder/assetType',
+   path: 'protocol/v0.1/ethereum/order/encoder/assetType',
    method: 'POST' ,
    data: asset
   })
@@ -43,7 +48,7 @@ async function getEncodedAssetData(asset) {
 
 async function getEncoderData(data) {
   const res = await raribleApiRequest({
-   path: 'protocol/ethereum/order/indexer/v0.1/encoder/data',
+   path: 'protocol/v0.1/ethereum/order/encoder/data',
    method: 'POST' ,
    data
   })
