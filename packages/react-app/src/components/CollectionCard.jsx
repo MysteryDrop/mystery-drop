@@ -13,7 +13,7 @@ export default function CollectionCard({ dropId, title, content, image, price, d
 
   useEffect(() => {
     if (content) {
-      setNumLeft(content.reduce((acc, item) => acc + item.token.supply, 0));
+      setNumLeft(content.reduce((acc, item) => acc + Number(item.token.supply), 0));
     } else {
       setNumLeft(0);
     }
