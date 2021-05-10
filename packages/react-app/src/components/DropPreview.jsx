@@ -1,10 +1,29 @@
 import React from "react";
 import "./DropPreview.scss";
 
-export default function Drop({ previewImg, title, subtitle, altSubtitle, description, prompt, action, disabled }) {
+export default function Drop({
+  previewImg,
+  dropId,
+  title,
+  subtitle,
+  altSubtitle,
+  description,
+  prompt,
+  action,
+  disabled,
+}) {
+  const minted = altSubtitle === "Minted";
   return (
-    <div className="drop-item">
-      <img alt="" src={previewImg} />
+    <div className={`drop-item ${minted ? "minted" : ""}`}>
+      <img
+        alt=""
+        src={previewImg}
+        onClick={() => {
+          if (minted) {
+            window.location.href = `/mydrops/${dropId}`;
+          }
+        }}
+      />
       <div className="info-container">
         <h2>{title}</h2>
         <h4>

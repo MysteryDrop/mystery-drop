@@ -28,7 +28,6 @@ export default function Drops({ provider }) {
         <div className="loading" />
       ) : (
         data.drops?.map(drop => {
-          console.log(drop);
           if (drop.status !== "PROCESSING") {
             const mintable = drop.content?.some(e => e.status !== "MINTED");
             // const listable = drop.content?.some(e => e.orders.success === true && e.orders.orders.length > 0);
@@ -36,6 +35,7 @@ export default function Drops({ provider }) {
             return (
               <DropPreview
                 key={drop.dropId}
+                dropId={drop.dropId}
                 previewImg={drop.dropPreviewUrl}
                 title={drop.dropTitle}
                 subtitle={drop.numberOfItems + " Pieces"}

@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { ReactComponent as Timer } from "assets/timer.svg";
+import { ReactComponent as Lock } from "assets/lock.svg";
+import { AuthContext } from "../Contexts";
 import { useParams } from "react-router";
 import { apiRequest } from "../util/util.js";
 import "./Drop.scss";
@@ -10,8 +12,9 @@ const DEFAULT_DATA = {
   usdPrice: 5503.22,
 };
 
-export default function Drop() {
+export default function Drop({ isOwner }) {
   const { id } = useParams();
+  const [jwtAuthToken, setJwtAuthToken] = useContext(AuthContext);
   const [dropData, setDropData] = useState();
   const timeLeft = new Date(Date.parse(DEFAULT_DATA.dropDate) - Date.now());
 
@@ -32,10 +35,18 @@ export default function Drop() {
             }`;
 
   useEffect(() => {
-    apiRequest({ path: `v1/public/getDrops?dropId=${id}`, method: "GET" }).then(data => {
-      setDropData(data.drops[0]);
-      console.log({ data: data.drops[0] });
-    });
+    console.log({ isOwner, id, jwtAuthToken });
+    if (isOwner) {
+      apiRequest({ path: `v1/public/getDrops?dropId=${id}`, method: "GET", accessToken: jwtAuthToken }).then(data => {
+        setDropData(data.drops[0]);
+        console.log({ data });
+      });
+    } else {
+      apiRequest({ path: `v1/public/getDrops?dropId=${id}`, method: "GET" }).then(data => {
+        setDropData(data.drops[0]);
+        console.log({ data: data.drops[0] });
+      });
+    }
   }, [id]);
 
   return dropData ? (
@@ -47,11 +58,26 @@ export default function Drop() {
           <img alt="" src={dropData.dropPreviewUrl} />
         </div>
         <div className="action-container">
-          <button className="button is-primary">Purchase</button>
-          <button disabled={true} className="button timer">
-            <Timer />
-            {getTimeString()}
-          </button>
+          {isOwner ? (
+            <>
+              {timeLeft < 0 ? (
+                <button className="button is-primary">Reveal</button>
+              ) : (
+                <button disabled={true} className="button timer">
+                  <Lock />
+                  {getTimeString()}
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <button className="button is-primary">Purchase</button>
+              <button disabled={true} className="button timer">
+                <Timer />
+                {getTimeString()}
+              </button>
+            </>
+          )}
         </div>
       </div>
       <div className="text-container">

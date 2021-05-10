@@ -11,7 +11,8 @@
   width: 100vw;
 
   .gallery-container {
-    flex: 3;
+    flex: 1;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -19,6 +20,7 @@
 
     .image-container {
       position: relative;
+      margin: 0 10%;
 
       .bottom {
         position: absolute;
@@ -77,7 +79,7 @@
   }
 
   .text-container {
-    flex: 2;
+    flex: 1;
     text-align: left;
 
     h1 {

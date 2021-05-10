@@ -375,8 +375,11 @@ function App(props) {
                   <Route path="/mint/:id?">
                     <Mint provider={userProvider} mainnetProvider={mainnetProvider} />
                   </Route>
-                  <Route path="/mydrops">
+                  <Route path="/mydrops" exact={true}>
                     <Drops provider={userProvider} mainnetProvider={mainnetProvider} />
+                  </Route>
+                  <Route path="/mydrops/:id">
+                    <Drop isOwner={true} />
                   </Route>
                   <Route path="/drop/:id">
                     <Drop />
