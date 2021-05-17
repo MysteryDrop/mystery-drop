@@ -133,24 +133,24 @@ function App(props) {
   // EXTERNAL CONTRACT EXAMPLE:
   //
   const rinkebyRariContract = useExternalContractLoader(localProvider, RARI_ADDRESS, RARI_ABI);
-  console.log("🌍 RARI contract on rinkeby:", rinkebyRariContract);
+  if (DEBUG) console.log("🌍 RARI contract on rinkeby:", rinkebyRariContract);
 
   const vaultId = 34;
   const rinkebyVaultContract = useExternalContractLoader(localProvider, VAULT_ADDRESS, VAULT_ABI);
-  console.log("🌍 Vault contract on rinkeby:", rinkebyVaultContract);
+  if (DEBUG) console.log("🌍 Vault contract on rinkeby:", rinkebyVaultContract);
 
   const myRinkebyVaultHoldings = useContractReader({ XSTORE: rinkebyVaultContract }, "XSTORE", "holdingsLength", [
     vaultId,
   ]);
-  console.log("🥇 myRinkebyVaultHoldings:", myRinkebyVaultHoldings);
+  if (DEBUG) console.log("🥇 myRinkebyVaultHoldings:", myRinkebyVaultHoldings);
 
   // keep track of a variable from the contract in the local React state:
   const numberOfDrops = useContractReader(readContracts, "TokenSale", "numberOfDrops");
-  console.log("🤗 number of drops:", numberOfDrops);
+  if (DEBUG) console.log("🤗 number of drops:", numberOfDrops);
 
   //📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "TokenSale", "Transfer", localProvider, 1);
-  console.log("📟 Transfer events:", transferEvents);
+  if (DEBUG) console.log("📟 Transfer events:", transferEvents);
 
   //
   // 🧠 This effect will update token sale by polling when number of drops changes
@@ -160,14 +160,14 @@ function App(props) {
 
   useEffect(() => {
     const updateTokenSaleBalance = async () => {
-      console.log("Updating drops");
+      if (DEBUG) console.log("Updating drops");
       let tokenSaleUpdate = [];
       if (numberOfDrops) {
         for (let tokenIndex = 0; tokenIndex < numberOfDrops.toNumber(); tokenIndex++) {
           try {
-            console.log("Getting token index", tokenIndex);
+            if (DEBUG) console.log("Getting token index", tokenIndex);
             const tokenAddress = await readContracts.TokenSale.dropAddress(tokenIndex);
-            console.log("tokenId", tokenAddress);
+            if (DEBUG) console.log("tokenId", tokenAddress);
 
             const yourBalance = await readContracts.TokenSale.balanceOf(tokenAddress, address);
             const tokensAvailable = await readContracts.TokenSale.tokensAvailable(tokenAddress);
@@ -193,40 +193,39 @@ function App(props) {
 
   useEffect(() => {
     const updateVaultHoldings = async () => {
-      console.log(`Updating holdings`);
+      if (DEBUG) console.log(`Updating holdings`);
       let vaultHoldingsUpdate = [];
       if (vaultHoldingsLength) {
-        console.log(`Updating holdings: ${myRinkebyVaultHoldings.toNumber()}`);
+        if (DEBUG) console.log(`Updating holdings: ${myRinkebyVaultHoldings.toNumber()}`);
 
         for (let holdingsIndex = 0; holdingsIndex < myRinkebyVaultHoldings.toNumber(); holdingsIndex++) {
           try {
-            console.log("Getting holding index", holdingsIndex);
+            if (DEBUG) console.log("Getting holding index", holdingsIndex);
             const tokenId = await rinkebyVaultContract.holdingsAt(vaultId, holdingsIndex);
             const tokenURI = await rinkebyRariContract.tokenURI(tokenId.toString());
             const ipfsHash = tokenURI.replace("ipfs:/ipfs/", "");
-            console.log("NFT tokenId", tokenId.toString());
-            console.log("NFT tokenURI", tokenURI.toString());
-            console.log("ipfsHash", ipfsHash);
+            if (DEBUG) console.log("NFT tokenId", tokenId.toString());
+            if (DEBUG) console.log("NFT tokenURI", tokenURI.toString());
+            if (DEBUG) console.log("ipfsHash", ipfsHash);
             const metadataUri = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
             // const metadataUri = `https://gateway.pinata.cloud/ipfs/QmRxyfRwonZo9oXtBGaz2PDbJB7snm6R645irzGqrqKgJh`
 
             try {
               const jsonManifest = await axios.get(metadataUri, { timeout: 100 }).then(function (response) {
-                console.log(response.data);
+                if (DEBUG) console.log(response.data);
                 return response.data;
               });
               const imageURI = jsonManifest.image;
               const imageIpfsHash = imageURI.replace("ipfs://ipfs/", "");
               const renderUri = `https://gateway.pinata.cloud/ipfs/${imageIpfsHash}`;
-              console.log("jsonManifest", jsonManifest);
+              if (DEBUG) console.log("jsonManifest", jsonManifest);
               vaultHoldingsUpdate.push({ id: tokenId, uri: tokenURI, renderUri, ...jsonManifest });
             } catch (e) {
-              console.log("🧙 This NFT is still hidden");
+              if (DEBUG) console.log("🧙 This NFT is still hidden");
               const placeholderManifest = getPlaceholderJSONManifest(ipfsHash, tokenId);
               vaultHoldingsUpdate.push({ id: tokenId, uri: tokenURI, ...placeholderManifest });
             }
           } catch (e) {
-            alert("failed");
             console.log(e);
           }
         }
