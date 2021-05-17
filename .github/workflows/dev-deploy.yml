@@ -22,5 +22,5 @@ jobs:
       - run: yarn install
       - run: CI=false yarn build
       - run: cd packages/react-app/infra
-      - run: npm ci
+      - run: npm install
       - run: npx serverless deploy --domain dev.mysterydrop.app --name web --htmlSrc "../build" --hostedzoneid Z07774401NIYXMXGGQDWK
