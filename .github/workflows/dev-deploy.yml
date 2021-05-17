@@ -20,10 +20,10 @@ jobs:
       - run: CI=false yarn build
       - name: serverless deploy
         uses: serverless/github-action@master
-        working-directory: ./packages/react-app/infra
         with:
           args: deploy --domain dev.mysterydrop.app --name web --htmlSrc "../build" --hostedzoneid Z07774401NIYXMXGGQDWK
         env:
           SERVERLESS_ACCESS_KEY: ${{secrets.SERVERLESS_ACCESS_KEY}}
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+        working-directory: ./packages/react-app/infra
