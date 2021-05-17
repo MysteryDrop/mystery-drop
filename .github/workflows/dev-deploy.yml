@@ -19,8 +19,8 @@ jobs:
       - run: yarn install
       - run: CI=false yarn build
       - name: serverless deploy
-        working-directory: ./packages/react-app/infra
         uses: serverless/github-action@master
+        working-directory: ./packages/react-app/infra
         with:
           args: deploy --domain dev.mysterydrop.app --name web --htmlSrc "../build" --hostedzoneid Z07774401NIYXMXGGQDWK
         env:
