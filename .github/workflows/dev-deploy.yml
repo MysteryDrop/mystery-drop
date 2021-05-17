@@ -20,9 +20,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
-      - run: cd ../ && yarn install
-      - run: cd ../ && CI=false yarn build
-      - run: npm ci
+      - run: yarn install
+      - run: CI=false yarn build
+      - run: cd ./infra && npm ci
       - name: serverless deploy
         uses: serverless/github-action@master
         with:
