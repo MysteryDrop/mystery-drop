@@ -23,6 +23,7 @@ jobs:
       - run: cd ../ && yarn install
       - run: cd ../ && CI=false yarn build
       - run: npm ci
+      - run: ls
       - name: serverless deploy
         uses: serverless/github-action@master
         with:
