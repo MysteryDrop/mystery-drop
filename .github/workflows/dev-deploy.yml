@@ -20,7 +20,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
       - run: yarn install
-      - run: yarn build
+      - run: CI=false yarn build
       - run: cd packages/react-app/infra
       - run: npm ci
       - run: npx serverless deploy --domain dev.mysterydrop.app --name web --htmlSrc "../build" --hostedzoneid Z07774401NIYXMXGGQDWK
