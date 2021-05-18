@@ -26,4 +26,5 @@ jobs:
       - run: yarn install
       - run: CI=false yarn build
       - run: cd ./infra && npm ci
+      - run: cd ./infra && npx serverless config --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - run: cd ./infra && npx serverless deploy --package ./infra --domain dev.mysterydrop.app --name web --htmlSrc "../build" --hostedzoneid Z07774401NIYXMXGGQDWK
