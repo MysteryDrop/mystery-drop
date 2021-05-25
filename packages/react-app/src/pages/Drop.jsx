@@ -60,7 +60,11 @@ export default function Drop({ isOwner }) {
         <div className="action-container">
           {isOwner ? (
             <>
-              {timeLeft < 0 ? (
+              {dropData.status === "PROCESSING" ? (
+                <button disabled={true} className="button timer">
+                  Processing
+                </button>
+              ) : timeLeft < 0 ? (
                 <button className="button is-primary">Reveal</button>
               ) : (
                 <button disabled={true} className="button timer">
