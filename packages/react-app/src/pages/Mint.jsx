@@ -4,7 +4,7 @@ import axios, { AxiosResponse } from "axios";
 import { v4 as uuid } from "uuid";
 import { useParams } from "react-router";
 
-import { AuthRequired, StepIndicator, CollectionUpload, CollectionDetails, CollectionList } from "components";
+import { AuthRequired, StepIndicator, DropInfoInput, CollectionDetails, CollectionList } from "components";
 import "./Mint.scss";
 import { apiRequest } from "../util/util";
 import { CollectionMint } from "components";
@@ -70,7 +70,7 @@ export async function uploadDrop({ jwtAuthToken, bannerImg, title, description, 
 export default function Mint({ provider, mainnetProvider }) {
   const { id } = useParams();
   const [jwtAuthToken, setJwtAuthToken] = useContext(AuthContext);
-  const [step, setStep] = useState(id ? 2 : 0);
+  const [step, setStep] = useState(id ? 1 : 0);
   const [artworks, setArtworks] = useState([]);
   const [bannerImg, setBannerImg] = useState();
   const [title, setTitle] = useState();
@@ -110,10 +110,10 @@ export default function Mint({ provider, mainnetProvider }) {
 
   return jwtAuthToken ? (
     <div className="create-collection">
-      <h1>Create Collection</h1>
-      <StepIndicator steps={["Upload", "Details", "Mint"]} selected={step} />
+      <h1>New Drop</h1>
+      <StepIndicator steps={["Info", "Mint", "Publish"]} selected={step} />
       {step === 0 ? (
-        <CollectionUpload
+        <DropInfoInput
           artworks={artworks}
           setArtworks={setArtworks}
           bannerImg={bannerImg}
@@ -122,39 +122,18 @@ export default function Mint({ provider, mainnetProvider }) {
           setTitle={setTitle}
           description={description}
           setDescription={setDescription}
-          onSubmit={() => {
-            setStep(step + 1);
-          }}
-        />
-      ) : step === 1 ? (
-        <CollectionDetails
           dropDate={dropDate}
           setDropDate={setDropDate}
           price={price}
           setPrice={setPrice}
-          goBack={() => {
-            setStep(step - 1);
-          }}
           onSubmit={() => {
             upload();
             setStep(step + 1);
           }}
         />
-      ) : (
-        <>
-          {/* <button onClick={() => logDrops({ jwtAuthToken })} className="button is-primary"> */}
-          {/*   Log Drops */}
-          {/* </button> */}
-          {/* <button onClick={() => logout({ setJwtAuthToken })} className="button is-primary"> */}
-          {/*   Logout */}
-          {/* </button> */}
-          <CollectionMint
-            provider={provider}
-            mainnetProvider={mainnetProvider}
-            dropId={dropId}
-          />
-        </>
-      )}
+      ) : step === 1 ? (
+        <CollectionMint provider={provider} mainnetProvider={mainnetProvider} dropId={dropId} />
+      ) : null}
       {/* <button onClick={submit} className="submit button is-primary"> */}
       {/*   Upload Collection */}
       {/* </button> */}

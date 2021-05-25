@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FileInput, TextInput, DateTimeInput } from "components";
+import { FileInput, TextInput, DateTimeInput, PriceInput } from "components";
 import { ReactComponent as ModalIndicator } from "assets/modal-indicator.svg";
 import { ReactComponent as EditIcon } from "assets/edit-icon.svg";
 import { ReactComponent as AddIcon } from "assets/add-icon.svg";
@@ -10,6 +10,7 @@ import noImage from "assets/no-image.svg";
 const MAX_ARTWORKS = 6;
 const MAX_TITLE_LENGTH = 250;
 const MAX_DESCRIPTION_LENGTH = 1000;
+const MAX_DROP_PRICE = 5;
 
 export default function CollectionUpload({
   artworks,
@@ -21,6 +22,10 @@ export default function CollectionUpload({
   description,
   setDescription,
   onSubmit,
+  dropDate,
+  setDropDate,
+  price,
+  setPrice,
 }) {
   const modal = useRef();
   const [editing, setEditing] = useState(-1);
@@ -30,6 +35,8 @@ export default function CollectionUpload({
   const [titleError, setTitleError] = useState();
   const [descError, setDescError] = useState();
   const [noCardError, setNoCardError] = useState();
+  const [dateError, setDateError] = useState();
+  const [priceError, setPriceError] = useState();
 
   const ensureValid = () => {
     let errors = false;
@@ -53,6 +60,20 @@ export default function CollectionUpload({
     }
     if (artworks.length < 1) {
       setNoCardError("Must Upload Artworks");
+      errors = true;
+    }
+    if (!dropDate) {
+      setDateError("Drop Date Required");
+      errors = true;
+    } else if (Date.parse(dropDate) < Date.now()) {
+      setDateError("Drop Date Must Be In The Future");
+      errors = true;
+    }
+    if (!price || price === "") {
+      setPriceError("Drop Price Required");
+      errors = true;
+    } else if (parseFloat(price) > MAX_DROP_PRICE) {
+      setPriceError("Piece Price Must Be Under 5 ETH");
       errors = true;
     }
     artworks.forEach((artwork, index) => {
@@ -95,6 +116,18 @@ export default function CollectionUpload({
       setDescError(null);
     }
   }, [description]);
+
+  useEffect(() => {
+    if (dropDate && Date.parse(dropDate) > Date.now()) {
+      setDateError(null);
+    }
+  }, [dropDate]);
+
+  useEffect(() => {
+    if (price && parseFloat(price) < MAX_DROP_PRICE) {
+      setPriceError(null);
+    }
+  }, [price]);
 
   useEffect(() => {
     if (artworks.length > 0) {
@@ -231,9 +264,9 @@ export default function CollectionUpload({
 
   return (
     <>
-      <FileInput error={bannerError} label="Preview Image" name="bannerImg" onChange={setBannerImg} file={bannerImg} />
+      <FileInput error={bannerError} label="Thumbnail" name="bannerImg" onChange={setBannerImg} file={bannerImg} />
       <TextInput
-        label="Name"
+        label="Drop Name"
         placeholder="Eg. Splash"
         name="title"
         error={titleError}
@@ -244,7 +277,7 @@ export default function CollectionUpload({
       />
       <TextInput
         multiline={true}
-        label="Description"
+        label="Drop Description"
         placeholder="Eg. A collection of randomly generated..."
         name="description"
         error={descError}
@@ -253,6 +286,15 @@ export default function CollectionUpload({
         }}
         defaultText={description}
       />
+      <DateTimeInput
+        label="Release Date"
+        error={dateError}
+        value={dropDate}
+        onChange={event => {
+          setDropDate(event.nativeEvent.target.value);
+        }}
+      />
+      <PriceInput label="Total Price" error={priceError} onChange={setPrice} value={price} />
       <div className="artworks">
         <h4>Artworks</h4>
         <div className="artwork-card-container">

@@ -72,6 +72,16 @@ p {
     &:hover {
       color: white;
     }
+
+    &[disabled] {
+      opacity: 0.5;
+      color: white;
+      border-color: $green;
+
+      &:hover {
+        cursor: auto;
+      }
+    }
   }
 
   &[disabled] {

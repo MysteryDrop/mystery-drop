@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import "./DropPreview.scss";
 
-export default function Drop({
+export default function DropPreview({
   previewImg,
-  dropId,
   title,
   subtitle,
   altSubtitle,
@@ -12,27 +11,37 @@ export default function Drop({
   action,
   disabled,
 }) {
-  const minted = altSubtitle === "Minted";
+  const [loading, setLoading] = useState(false);
+
   return (
-    <div className={`drop-item ${minted ? "minted" : ""}`}>
-      <img
-        alt=""
-        src={previewImg}
-        onClick={() => {
-          if (minted) {
-            window.location.href = `/mydrops/${dropId}`;
-          }
-        }}
-      />
+    <div className="drop-item">
+      <img alt="" src={previewImg} />
       <div className="info-container">
         <h2>{title}</h2>
         <h4>
           {subtitle} <span className="alt">{altSubtitle}</span>
         </h4>
         <p>{description}</p>
-        <button disabled={disabled} className="button-alt" onClick={action}>
-          {prompt}
-        </button>
+        {loading ? (
+          <div className="loader" />
+        ) : (
+          <button
+            disabled={disabled}
+            className="button-alt"
+            onClick={() => {
+              setLoading(true);
+              action()
+                .catch(err => {
+                  console.error(err);
+                })
+                .finally(() => {
+                  setLoading(false);
+                });
+            }}
+          >
+            {prompt}
+          </button>
+        )}
       </div>
     </div>
   );

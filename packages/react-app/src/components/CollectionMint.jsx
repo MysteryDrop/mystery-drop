@@ -50,29 +50,29 @@ async function mintItem({ provider, contentId, dropId, jwtAuthToken }) {
   console.log({ mintResult });
 }
 
-async function publishDrop({ dropId, jwtAuthToken}) {
+async function publishDrop({ dropId, jwtAuthToken }) {
   const result = await apiRequest({
     path: `v1/publishDrop`,
     method: "POST",
     accessToken: jwtAuthToken,
     data: {
-      dropId
-    }
+      dropId,
+    },
   });
   console.log({ result });
 }
 
-async function listItem({provider, content}) {
+async function listItem({ provider, content }) {
   const signer = provider.getSigner();
-  const network = await provider.getNetwork()
+  const network = await provider.getNetwork();
   const address = await signer.getAddress();
-  const form = createOrderForm(address, content.token.contract, content.token.tokenId, network.chainId)
-  const order = await prepareOrderMessage(form)
-  const contractAddress = '0x43162023C187662684abAF0b211dCCB96fa4eD8a'
-  const signature = await signOrderMessage(provider, order, address, contractAddress)
-  const result = await putOrder({...order, signature})
+  const form = createOrderForm(address, content.token.contract, content.token.tokenId, network.chainId);
+  const order = await prepareOrderMessage(form);
+  const contractAddress = "0x43162023C187662684abAF0b211dCCB96fa4eD8a";
+  const signature = await signOrderMessage(provider, order, address, contractAddress);
+  const result = await putOrder({ ...order, signature });
   console.log("list");
-  console.log({result});
+  console.log({ result });
 }
 
 export default function Drops({ provider, mainnetProvider, dropId }) {
@@ -84,6 +84,7 @@ export default function Drops({ provider, mainnetProvider, dropId }) {
   const defaultDesc = "Description of the collection Item, this is a description placeholder.";
   const defaultPrice = 1.21;
   const usdPrice = useExchangePrice(provider._network, mainnetProvider, 1000);
+  const numMinted = data?.drops?.[0]?.content?.reduce((acc, item) => acc + Number(item?.status === "MINTED"), 0);
 
   if (isLoading || (isFetching && !data)) return <div className="loader"></div>;
   if (error) return <span>`An error has occurred: ${error}`</span>;
@@ -99,32 +100,25 @@ export default function Drops({ provider, mainnetProvider, dropId }) {
               previewImg={content.contentUrl}
               title={content.metadata.title}
               subtitle={`Ξ ${defaultPrice}`}
-              altSubtitle={`$${(usdPrice * defaultPrice).toFixed(2)}${content.orders.success && content.orders.orders.length ? 'listed': ''}`}
+              altSubtitle={`$${(usdPrice * defaultPrice).toFixed(2)}`}
               description={content.metadata.description}
-              // disabled={content.status === "MINTED"}
-              prompt={content.status === "MINTED" ? "List" : "Mint"}
+              disabled={content.status === "MINTED"}
+              prompt={content.status === "MINTED" ? "minted" : "Mint"}
               action={() =>
-                content.status === "MINTED"
-                  ? listItem({provider, content})
-                  : mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
+                content.status === "PROCESSED" || content.status === "MINTABLE"
+                  ? mintItem({ provider, jwtAuthToken, contentId: content.contentId, dropId: drop.dropId })
+                  : null
               }
             />
           ))}
           <button
             onClick={() => {
-              publishDrop({dropId: drop.dropId, jwtAuthToken})
+              publishDrop({ dropId: drop.dropId, jwtAuthToken });
             }}
             className="button is-primary"
+            disabled={numMinted !== Number(drop.numberOfItems)}
           >
-            Publish
-          </button>
-          <button
-            onClick={() => {
-              window.location.href = "/mydrops";
-            }}
-            className="button is-primary"
-          >
-            Finish
+            Continue
           </button>
         </div>
       ))}

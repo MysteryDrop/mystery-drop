@@ -19,8 +19,8 @@ export default function FileInput({ label, error, name, onChange, file }) {
       <label className={file ? "uploaded-image" : error ? "error" : null}>
         <img alt="" src={file?.localUrl} />
         <UploadIcon />
-        <p>PNG, GIF, WEBP or MP4</p>
-        <input onChange={handleUpload} name={name} type="file" accept=".png,.gif,.webp,.mp4" />
+        <p>PNG, JPEG, GIF, WEBP or MP4</p>
+        <input onChange={handleUpload} name={name} type="file" accept=".png,.gif,.webp,.mp4,.jpeg,.jpg" />
       </label>
       <p className="error-message">{error}</p>
     </div>
