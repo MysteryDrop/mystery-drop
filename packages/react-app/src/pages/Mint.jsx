@@ -111,7 +111,7 @@ export default function Mint({ provider, mainnetProvider }) {
   return jwtAuthToken ? (
     <div className="create-collection">
       <h1>New Drop</h1>
-      <StepIndicator steps={["Info", "Mint", "Publish"]} selected={step} />
+      <StepIndicator steps={["Info", "Mint"]} selected={step} />
       {step === 0 ? (
         <DropInfoInput
           artworks={artworks}
@@ -131,12 +131,9 @@ export default function Mint({ provider, mainnetProvider }) {
             setStep(step + 1);
           }}
         />
-      ) : step === 1 ? (
+      ) : (
         <CollectionMint provider={provider} mainnetProvider={mainnetProvider} dropId={dropId} />
-      ) : null}
-      {/* <button onClick={submit} className="submit button is-primary"> */}
-      {/*   Upload Collection */}
-      {/* </button> */}
+      )}
     </div>
   ) : (
     <AuthRequired provider={provider} />

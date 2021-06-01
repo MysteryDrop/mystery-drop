@@ -86,7 +86,7 @@ export default function Drops({ provider, mainnetProvider, dropId }) {
   const usdPrice = useExchangePrice(provider._network, mainnetProvider, 1000);
   const numMinted = data?.drops?.[0]?.content?.reduce((acc, item) => acc + Number(item?.status === "MINTED"), 0);
 
-  if (isLoading || (isFetching && !data)) return <div className="loader"></div>;
+  if (isLoading || (isFetching && !data) || data?.drops?.length === 0) return <div className="loader"></div>;
   if (error) return <span>`An error has occurred: ${error}`</span>;
   console.log({ data });
 
@@ -118,7 +118,7 @@ export default function Drops({ provider, mainnetProvider, dropId }) {
             className="button is-primary"
             disabled={numMinted !== Number(drop.numberOfItems)}
           >
-            Continue
+            Publish
           </button>
         </div>
       ))}

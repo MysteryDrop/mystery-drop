@@ -30,7 +30,7 @@ export default function Drops({ provider }) {
         data.drops?.map(drop => {
           if (drop.status !== "PROCESSING") {
             const mintable = drop.content?.some(e => e.status !== "MINTED");
-            // const listable = drop.content?.some(e => e.orders.success === true && e.orders.orders.length > 0);
+            /* const listable = drop.content?.some(e => e.orders.success === true && e.orders.orders.length > 0); */
             const publishable = drop.status !== "LISTED";
             return (
               <DropPreview
@@ -39,9 +39,9 @@ export default function Drops({ provider }) {
                 previewImg={drop.dropPreviewUrl}
                 title={drop.dropTitle}
                 subtitle={drop.numberOfItems + " Pieces"}
-                altSubtitle={mintable ? "Mintable" : "Minted"}
+                altSubtitle={mintable ? "Mintable" : publishable ? "Minted" : "Published"}
                 description={drop.dropDescription}
-                prompt={mintable ? "Edit" : publishable ? "Publish" : "List"}
+                prompt={mintable ? "Edit" : publishable ? "Publish" : "View"}
                 action={
                   mintable
                     ? () => {
@@ -52,7 +52,7 @@ export default function Drops({ provider }) {
                         window.location.href = `/mint/${drop.dropId}`;
                       }
                     : () => {
-                        window.location.href = `/mint/${drop.dropId}`;
+                        window.location.href = `/drop/${drop.dropId}`;
                       }
                 }
               />
