@@ -299,6 +299,47 @@ function App(props) {
 
   const [modal, setModal] = useState(false);
 
+  // Warn Wrong Network
+  useEffect(() => {
+    if (injectedProvider) {
+      injectedProvider.getNetwork().then(providerNetwork => {
+        if (window.ethereum && providerNetwork && providerNetwork.chainId != targetNetwork.chainId) {
+          window.ethereum
+            .request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: "0x" + targetNetwork.chainId,
+                  chainName: targetNetwork.name,
+                  rpcUrls: [targetNetwork.rpcUrl],
+                  blockExplorerUrls: [targetNetwork.blockExplorer],
+                },
+              ],
+            })
+            .then(() => {
+              console.log("OOps");
+              setModal(false);
+            })
+            .catch(err => {
+              setModal({
+                title: "Warning",
+                description: `The network you are on is not currently supported. Please switch to the ${targetNetwork.name} network.`,
+                actions: [
+                  {
+                    text: "Ok",
+                    isPrimary: true,
+                    action: () => {
+                      setModal(false);
+                    },
+                  },
+                ],
+              });
+            });
+        }
+      });
+    }
+  }, [injectedProvider]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="App">
