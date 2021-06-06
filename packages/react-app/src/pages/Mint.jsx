@@ -4,11 +4,11 @@ import axios, { AxiosResponse } from "axios";
 import { v4 as uuid } from "uuid";
 import { useParams } from "react-router";
 
-import { AuthRequired, StepIndicator, DropInfoInput, CollectionDetails, CollectionList } from "components";
+import { AuthRequired, Modal, StepIndicator, DropInfoInput, CollectionDetails, CollectionList } from "components";
 import "./Mint.scss";
 import { apiRequest } from "../util/util";
 import { CollectionMint } from "components";
-import { AuthContext } from "Contexts";
+import { AuthContext, ModalContext } from "Contexts";
 
 async function logDrops({ jwtAuthToken }) {
   const result = await apiRequest({ path: "v1/getDrops", method: "GET", accessToken: jwtAuthToken });
@@ -78,6 +78,7 @@ export default function Mint({ provider, mainnetProvider }) {
   const [dropDate, setDropDate] = useState();
   const [dropId, setDropId] = useState(id);
   const [price, setPrice] = useState();
+  const [modal, setModal] = useContext(ModalContext);
   const queryClient = useQueryClient();
 
   const resetInputs = () => {
@@ -127,8 +128,29 @@ export default function Mint({ provider, mainnetProvider }) {
           price={price}
           setPrice={setPrice}
           onSubmit={() => {
-            upload();
-            setStep(step + 1);
+            setModal({
+              title: "Warning",
+              description:
+                "This step is irreversible. After this point you will not be able to come back and edit your drop.",
+              actions: [
+                {
+                  text: "Cancel",
+                  action: () => {
+                    setModal(null);
+                  },
+                  isPrimary: false,
+                },
+                {
+                  text: "Continue",
+                  action: () => {
+                    upload();
+                    setModal(null);
+                    setStep(step + 1);
+                  },
+                  isPrimary: true,
+                },
+              ],
+            });
           }}
         />
       ) : (
