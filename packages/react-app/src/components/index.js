@@ -31,4 +31,5 @@ export { default as StepIndicator } from "./StepIndicator";
 export { default as AuthRequired } from "./AuthRequired";
 export { default as PriceInput } from "./PriceInput";
 export { default as DropPreview } from "./DropPreview";
+export { default as SectionSelector } from "./SectionSelector";
 export { default as Modal } from "./Modal";

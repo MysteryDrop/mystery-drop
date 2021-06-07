@@ -1,0 +1,26 @@
+@import "styles/default.scss";
+
+.section-selector {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  border-bottom: 1px solid $light-grey;
+
+  .section {
+    color: $light-grey;
+    padding: 0.2rem 2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-bottom: 1px solid $light-grey;
+    margin-bottom: -1px;
+
+    &.selected {
+      color: black;
+      border-color: black;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
